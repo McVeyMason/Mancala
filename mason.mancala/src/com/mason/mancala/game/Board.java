@@ -1,7 +1,8 @@
 package com.mason.mancala.game;
 
 /**
- * A mancala board. The marbles in each pocket is tracked by 
+ * A mancala board. The marbles in each pocket is tracked by
+ * {@link Board#marbles}.
  * 
  * @author Mason
  *
@@ -9,18 +10,26 @@ package com.mason.mancala.game;
 public class Board {
 
 	/**
-	 * The amount of marbles in each pocket of Board
+	 * The amount of marbles in each pocket of Board.
+	 * <p>
+	 * Index 0 is the player's leftmost pocket. Numbering continue in a
+	 * counter-clockwise motion and includes the player's store (index 6) and the
+	 * opponent's store (index 13). Numbers are changed through
+	 * {@link Board#playPlayer(int)} and {@link Board#playOpponent(int)}.
+	 * </p>
 	 */
 	int[] marbles;
+
 	/**
 	 * Whether or not the player or opponent can play a move.
+	 * 
 	 * @see Board#playPlayer(int)
 	 * @see Board#playOpponent(int)
 	 */
 	boolean move;
 
 	/**
-	 * Stored as 1 is the first pocket and 6 in the last
+	 * Stored as 1 is the first pocket (index 0) and 12 in the last (index 12).
 	 */
 	int[] moves;
 	int currentMove;
@@ -30,11 +39,11 @@ public class Board {
 	static final int MOSTMOVES = 50;
 
 	/**
-	 * Default constructor. 
-	 * {@link Board.marbles} set to 
+	 * Default constructor. {@link Board.marbles} set to {@link Mancala#MARBLES}.
 	 */
 	Board() {
-		marbles = new int[] { 4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 0 };
+		marbles = new int[14]; 
+		System.arraycopy(Mancala.MARBLES, 0, marbles, 0, 14);
 		this.move = true;
 		this.moves = new int[MOSTMOVES];
 		currentMove = 0;
@@ -95,14 +104,14 @@ public class Board {
 	}
 
 	/**
-	 * Plays the game from <code>pickUp</code> and deposits marbles into 
+	 * Plays the game from <code>pickUp</code> and deposits marbles into
 	 * 
 	 * @param pickUp the pocket to play the game from
 	 */
 	public void playPlayer(int pickUp) {
 		if (move) {
 			moves[currentMove] = pickUp + 1;
-			//System.out.println(pickUp + "," + currentMove);
+			// System.out.println(pickUp + "," + currentMove);
 			currentMove++;
 		}
 
@@ -132,7 +141,7 @@ public class Board {
 	 */
 	public void playOpponent(int pickUp) {
 		if (move) {
-			moves[currentMove] = pickUp + 1;
+			moves[currentMove] = pickUp;
 //			System.out.println(pickUp + "," + currentMove);
 			currentMove++;
 		}
@@ -180,7 +189,7 @@ public class Board {
 
 		System.out.println(out);
 	}
-	
+
 	/**
 	 * @return {@link Board.moves} in String form.
 	 */
@@ -206,7 +215,5 @@ public class Board {
 		}
 		return marbleString;
 	}
-	
- 
-	
+
 }
