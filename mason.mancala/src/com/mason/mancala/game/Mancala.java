@@ -1,10 +1,8 @@
 package com.mason.mancala.game;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +16,10 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
+ * This class plays the game mancala in order to find the best possibles moves.
+ * It mainly uses recursive loops to find each possible combinations of moves.
+ * 
+ * 
  * @author Mason
  *
  */
@@ -33,22 +35,24 @@ public class Mancala {
 	/**
 	 * The default array of marbles in each pocket. To be used if the user chooses
 	 * default marbles.
+	 * 
 	 * @see Mancala#setBoard()
 	 * @see Mancala#MARBLES_HALF
 	 */
 	public static final int[] MARBLES = new int[14];
 
 	public static int[] marbles = new int[14];
-	
 
 	/**
 	 * The first layer of possible moves on the <code>Board</code>.
+	 * 
 	 * @see Board
 	 * @see Mancala#indexLayer1
 	 */
 	static List<Board> boardLayer1 = new ArrayList<Board>();
 	/**
 	 * The second layer of possible moves on the <code>Board</code>.
+	 * 
 	 * @see Board
 	 * @see Mancala#indexLayer2
 	 */
@@ -63,10 +67,13 @@ public class Mancala {
 	 */
 	static int indexLayer2 = 0;
 
+	/**
+	 * If the player has won.
+	 */
 	static boolean win = false;
 
 	/**
-	 * Whether or not to delete entries if trees will be explored
+	 * Whether or not to delete entries if trees will be explored.
 	 */
 	private static final boolean DELETE_AFTER_USE = true;
 
@@ -74,46 +81,56 @@ public class Mancala {
 
 		System.arraycopy(MARBLES_HALF, 0, MARBLES, 0, 6);
 		System.arraycopy(MARBLES_HALF, 0, MARBLES, 7, 6);
-		try {
-			PrintStream fileOut = new PrintStream("./out.txt");
-			System.setOut(fileOut);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		//Prompts for user input 
+//		try {
+//			PrintStream fileOut = new PrintStream("./out.txt");
+//			System.setOut(fileOut);
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+		// Prompts for user input
 		marbles = setBoard();
 		for (int i = 0; i < 6; i++) {
 			boardLayer1.add(new Board(marbles));
 		}
 		tryMoves(boardLayer1);
-
 	}
 
+	/**
+	 * @param boards
+	 */
 	public static void tryMoves(List<Board> boards) {
 		tryMovesPlayer(boards);
 		saveBoard(boards, marbles);
-		indexLayer1 = 0;
-		List<Board> boards2 = new ArrayList<Board>();
-		for (int n = 0; n < boards.size(); n++) {
-			for (int a = 0; a < 6; a++) {
-				boards2.add(new Board(boards.get(n)));
-				boards2.get(a).move = true;
-			}
-			tryMovesOpponent(boards2);
-		}
-		int biggestDiff = 0;
-		int biggestIndex = 0;
-		for (int i = 0; i < boards2.size(); i++) {
-			if (boards2.get(i).marbles[6] - boards2.get(i).marbles[13] > biggestDiff) {
-				biggestDiff = boards2.get(i).marbles[6] - boards2.get(i).marbles[13];
-				biggestIndex = i;
-			}
-		}
-		System.out.println(boards2.get(biggestIndex).getMovesString());
+		System.out.println(boards.size());
+//		indexLayer1 = 0;
+//		List<Board> boards2 = new ArrayList<Board>();
+//		for (int n = 0; n < boards.size(); n++) {
+//			for (int a = 0; a < 6; a++) {
+//				boards2.add(new Board(boards.get(n)));
+//				boards2.get(a).move = true;
+//			}
+//			tryMovesOpponent(boards2);
+//		}
+//		int biggestDiff = 0;
+//		int biggestIndex = 0;
+//		for (int i = 0; i < boards2.size(); i++) {
+//			if (boards2.get(i).marbles[6] - boards2.get(i).marbles[13] > biggestDiff) {
+//				biggestDiff = boards2.get(i).marbles[6] - boards2.get(i).marbles[13];
+//				biggestIndex = i;
+//			}
+//		}
+//		System.out.println(boards2.get(biggestIndex).getMovesString());
 	}
 
+	/**
+	 * Tries each possible combination of moves on the players side(index 0-6).
+	 * Requires the List to have a initial size of 6. Dynamically adds new indexes
+	 * as new forks are explored.
+	 * 
+	 * @param boards An {@link ArrayList} of {@link Board}
+	 */
 	public static void tryMovesPlayer(List<Board> boards) {
 
 		for (int i = 0; i < 6; i++) {
@@ -136,6 +153,9 @@ public class Mancala {
 		}
 	}
 
+	/**
+	 * @param boards
+	 */
 	public static void tryMovesOpponent(List<Board> boards) {
 
 		for (int i = 0; i < 6; i++) {
@@ -158,21 +178,22 @@ public class Mancala {
 		}
 	}
 
+	/**
+	 * Creates an excel sheet of the boards.
+	 * @param boards A list of boards.
+	 * @param marbles The array of marbles used by the boards.
+	 */
 	public static void saveBoard(List<Board> boards, int[] marbles) {
 		XSSFWorkbook workbook = new XSSFWorkbook();
 
-		// Create a blank sheet
 		XSSFSheet sheet1 = workbook.createSheet("Mancala Data 1");
 
-		// This data needs to be written (Object[])
 		if (boards.size() > 65000) {
 			Map<String, Object[]> data1 = new TreeMap<String, Object[]>();
 			for (int i = 0; i < 65000; i++) {
-				data1.put(Integer.toString(i), new Object[] { boards.get(i).marbles[6], boards.get(i).getMovesString(),
-						boards.get(i).getMarblesString(), Boolean.toString(boards.get(i).move) });
+				data1.put(Integer.toString(i), boardText(boards.get(i)));
 			}
 
-			// Iterate over data and write to sheet
 			Set<String> keyset1 = data1.keySet();
 			int rownum1 = 0;
 			for (String key : keyset1) {
@@ -187,18 +208,13 @@ public class Mancala {
 						cell.setCellValue((Integer) obj);
 				}
 			}
-
-			// Create a blank sheet
 			XSSFSheet sheet = workbook.createSheet("Mancala Data 2");
 
-			// This data needs to be written (Object[])
 			Map<String, Object[]> data = new TreeMap<String, Object[]>();
 			for (int i = 65000; i < boards.size(); i++) {
-				data.put("1", new Object[] { boards.get(i).marbles[6], boards.get(i).getMovesString(),
-						boards.get(i).getMarblesString(), Boolean.toString(boards.get(i).move) });
+				data.put(Integer.toString(i), boardText(boards.get(i)));
 			}
 
-			// Iterate over data and write to sheet
 			Set<String> keyset = data.keySet();
 			int rownum = 0;
 			for (String key : keyset) {
@@ -217,11 +233,9 @@ public class Mancala {
 
 			Map<String, Object[]> data1 = new TreeMap<String, Object[]>();
 			for (int i = 0; i < boards.size(); i++) {
-				data1.put(Integer.toString(i), new Object[] { boards.get(i).marbles[6], boards.get(i).getMovesString(),
-						boards.get(i).getMarblesString(), Boolean.toString(boards.get(i).move) });
+				data1.put(Integer.toString(i), boardText(boards.get(i)));
 			}
 
-			// Iterate over data and write to sheet
 			Set<String> keyset1 = data1.keySet();
 			int rownum1 = 0;
 			for (String key : keyset1) {
@@ -239,7 +253,6 @@ public class Mancala {
 		}
 
 		try {
-			// Write the workbook in file system
 			FileOutputStream out = new FileOutputStream(new File("Board-" + getMarbleLayout(marbles) + ".xlsx"));
 			workbook.write(out);
 			out.close();
@@ -265,6 +278,14 @@ public class Mancala {
 		return marbleString;
 	}
 
+	/**
+	 * Creates the marbles to be used in the construction of {@link Board}.
+	 * 
+	 * @return An array of marbles
+	 * @see Mancala#marbles
+	 * @see Mancala#MARBLES
+	 * @see Mancala#MARBLES_HALF
+	 */
 	private static int[] setBoard() {
 		@SuppressWarnings("resource")
 		Scanner myObj = new Scanner(System.in);
@@ -298,5 +319,14 @@ public class Mancala {
 			return setBoard();
 
 		return allMarbles;
+	}
+
+	/**
+	 * @param board
+	 * @return The
+	 */
+	private static Object[] boardText(Board board) {
+		return new Object[] { board.getMovesString(), board.marbles[6], board.getMarblesString(),
+				Integer.toString(board.currentMove) };
 	}
 }
