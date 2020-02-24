@@ -1,5 +1,7 @@
 package com.mason.mancala.game;
 
+import java.util.List;
+
 /**
  * A mancala board. The marbles in each pocket is tracked by
  * {@link Board#marbles}.
@@ -32,17 +34,24 @@ public class Board {
 	 * Stored as 1 is the first pocket (index 0) and 12 in the last (index 12).
 	 */
 	int[] moves;
-	int currentMove;
+
 	/**
-	 * 
+	 * The current move of the board.
 	 */
-	static final int MOSTMOVES = 50;
+	int currentMove;
+
+	/**
+	 * The maximum moves the player will make
+	 */
+	static final int MOSTMOVES = 60;
 
 	/**
 	 * Default constructor. {@link Board.marbles} set to {@link Mancala#MARBLES}.
+	 * {@link Board#move} set to <code>true</code>. {@link Board#moves} created and
+	 * {@link Board#currentMove} set to 0.
 	 */
 	Board() {
-		marbles = new int[14]; 
+		marbles = new int[14];
 		System.arraycopy(Mancala.MARBLES, 0, marbles, 0, 14);
 		this.move = true;
 		this.moves = new int[MOSTMOVES];
@@ -50,10 +59,11 @@ public class Board {
 	}
 
 	/**
-	 * @param marbles
+	 * Constructor.
+	 * @param marbles Sets {@link Board#marbles}
 	 */
 	Board(int[] marbles) {
-		this.marbles = new int[14];
+		this.marbles = new int[marbles.length];
 		System.arraycopy(marbles, 0, this.marbles, 0, marbles.length);
 		this.move = true;
 		this.moves = new int[MOSTMOVES];
@@ -66,7 +76,7 @@ public class Board {
 	 * @param moves
 	 */
 	Board(int[] marbles, boolean move, int[] moves) {
-		this.marbles = new int[14];
+		this.marbles = new int[marbles.length];
 		System.arraycopy(marbles, 0, this.marbles, 0, marbles.length);
 		this.move = move;
 		this.moves = moves;
@@ -80,7 +90,7 @@ public class Board {
 	 * @param currentMove
 	 */
 	Board(int[] marbles, boolean move, int[] moves, int currentMove) {
-		this.marbles = new int[14];
+		this.marbles = new int[marbles.length];
 		System.arraycopy(marbles, 0, this.marbles, 0, marbles.length);
 		this.move = move;
 		this.moves = moves;
@@ -95,8 +105,8 @@ public class Board {
 	 */
 	public Board(Board board) {
 		this.currentMove = board.currentMove;
-		this.marbles = new int[14];
-		System.arraycopy(board.marbles, 0, this.marbles, 0, 14);
+		this.marbles = new int[board.marbles.length];
+		System.arraycopy(board.marbles, 0, this.marbles, 0, board.marbles.length);
 		this.move = board.move;
 		this.moves = new int[MOSTMOVES];
 		System.arraycopy(board.moves, 0, this.moves, 0, board.moves.length);
@@ -174,18 +184,19 @@ public class Board {
 	 */
 	public void printBoard() {
 		String out = new String();
-		out = marbles[6] + " : ";
-		for (int i = 0; i < currentMove; i++) {
-			out = out + Integer.toString(moves[i]);
-			if (i + 1 < currentMove)
-				out = out + ", ";
-		}
-		out = out + " : " + move + " : ";
-		for (int i = 0; i < marbles.length; i++) {
-			out = out + marbles[i];
-			if (i + 1 < marbles.length)
-				out = out + ", ";
-		}
+		out = Integer.toString(currentMove);
+//		out = marbles[6] + " : ";
+//		for (int i = 0; i < currentMove; i++) {
+//			out = out + Integer.toString(moves[i]);
+//			if (i + 1 < currentMove)
+//				out = out + ", ";
+//		}
+//		out = out + " : " + move + " : ";
+//		for (int i = 0; i < marbles.length; i++) {
+//			out = out + marbles[i];
+//			if (i + 1 < marbles.length)
+//				out = out + ", ";
+//		}
 
 		System.out.println(out);
 	}
@@ -214,6 +225,30 @@ public class Board {
 				marbleString = marbleString + ", ";
 		}
 		return marbleString;
+	}
+	
+	/**
+	 * @param board Board to be read.
+	 * @return An object of different aspects of board.
+	 */
+	public Object[] boardText() {
+		return new Object[] { getMovesString(), marbles[6], getMarblesString(),
+				Integer.toString(currentMove) };
+	}
+	
+	public static Board findBest(List<Board> boards) {
+		int bestMarbles = 0;
+		int bestIndex = 0;
+		for (int i = 0; i < boards.size();i++) {
+			if (bestMarbles < boards.get(i).marbles[6]) {
+				bestMarbles = boards.get(i).marbles[6];
+				bestIndex = i;
+			}
+			else if (bestMarbles == boards.get(i).marbles[6] && boards.get(bestIndex).currentMove > boards.get(i).currentMove) {
+				bestIndex = i;
+			}
+		}
+		return new Board(boards.get(bestIndex));
 	}
 
 }
