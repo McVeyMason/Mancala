@@ -43,7 +43,7 @@ public class Board {
 	/**
 	 * The maximum moves the player will make
 	 */
-	static final int MOSTMOVES = 60;
+	static final int MOSTMOVES = 70;
 
 	/**
 	 * Default constructor. {@link Board.marbles} set to {@link Mancala#MARBLES}.
@@ -184,19 +184,18 @@ public class Board {
 	 */
 	public void printBoard() {
 		String out = new String();
-		out = Integer.toString(currentMove);
-//		out = marbles[6] + " : ";
-//		for (int i = 0; i < currentMove; i++) {
-//			out = out + Integer.toString(moves[i]);
-//			if (i + 1 < currentMove)
-//				out = out + ", ";
-//		}
-//		out = out + " : " + move + " : ";
-//		for (int i = 0; i < marbles.length; i++) {
-//			out = out + marbles[i];
-//			if (i + 1 < marbles.length)
-//				out = out + ", ";
-//		}
+		out = marbles[6] + " : ";
+		for (int i = 0; i < currentMove; i++) {
+			out = out + Integer.toString(moves[i]);
+			if (i + 1 < currentMove)
+				out = out + ", ";
+		}
+		out = out + " : " + move + " : ";
+		for (int i = 0; i < marbles.length; i++) {
+			out = out + marbles[i];
+			if (i + 1 < marbles.length)
+				out = out + ", ";
+		}
 
 		System.out.println(out);
 	}

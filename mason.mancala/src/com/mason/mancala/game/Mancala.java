@@ -32,7 +32,7 @@ public class Mancala {
 	 * {@link Mancala#MARBLES}.
 	 * 
 	 */
-	public static final int[] MARBLES_HALF = new int[] { 6, 6, 6, 6, 6, 6, 0 };
+	public static final int[] MARBLES_HALF = new int[] { 4, 4, 4, 4, 4, 4, 0 };
 
 	/**
 	 * The default array of marbles in each pocket. To be used if the user chooses
@@ -237,8 +237,8 @@ public class Mancala {
 				workbook.createSheet("Mancala Data 5") };
 
 		for (int n = 0; n < SHEET_NUMBER; n++) {
-			System.out.println("mapping sheet " + (n + 1) + "...");
-			System.out.println("index is " + indexLayer1);
+//			System.out.println("mapping sheet " + (n + 1) + "...");
+//			System.out.println("index is " + indexLayer1);
 			int index = indexLayer1;
 
 			Map<Integer, Object[]> data = new TreeMap<Integer, Object[]>();
@@ -272,7 +272,7 @@ public class Mancala {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			System.out.println("index is " + indexLayer1);
+//			System.out.println("index is " + indexLayer1);
 		}
 
 		try {
