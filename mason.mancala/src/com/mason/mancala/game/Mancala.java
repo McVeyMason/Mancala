@@ -102,7 +102,6 @@ public class Mancala {
 				PrintStream fileOut = new PrintStream("./out.txt");
 				System.setOut(fileOut);
 			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -185,7 +184,6 @@ public class Mancala {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -269,7 +267,6 @@ public class Mancala {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 //			System.out.println("index is " + indexLayer1);
@@ -287,7 +284,6 @@ public class Mancala {
 		try {
 			workbook.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -295,7 +291,6 @@ public class Mancala {
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
