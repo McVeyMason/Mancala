@@ -1,4 +1,4 @@
-package com.mason.mancala.input;
+package com.mason.mancala.game.input;
 
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;

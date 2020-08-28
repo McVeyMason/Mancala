@@ -1,7 +1,5 @@
 package com.mason.mancala.game;
 
-import java.util.List;
-
 /**
  * A mancala board. The marbles in each pocket is tracked by
  * {@link Board#marbles}.
@@ -20,25 +18,17 @@ public class Board {
 	 * {@link Board#playPlayer(int)} and {@link Board#playOpponent(int)}.
 	 * </p>
 	 */
-	int[] marbles;
-
-	/**
-	 * Whether or not the player or opponent can play a move.
-	 * 
-	 * @see Board#playPlayer(int)
-	 * @see Board#playOpponent(int)
-	 */
-	boolean move;
+	public int[] marbles;
 
 	/**
 	 * Stored as 1 is the first pocket (index 0) and 12 in the last (index 12).
 	 */
-	int[] moves;
+	public int[] moves;
 
 	/**
 	 * The current move of the board.
 	 */
-	int currentMove;
+	public int currentMove;
 
 	/**
 	 * The maximum moves the player will make
@@ -53,7 +43,7 @@ public class Board {
 	/**
 	 * If it is the player's turn.
 	 */
-	boolean playerMove;
+	public boolean playerMove;
 
 	/**
 	 * If the game is playing.
@@ -61,6 +51,16 @@ public class Board {
 	boolean playing = false;
 
 	boolean prompt = true;
+	
+	/**
+	 * If the game is finished
+	 */
+	boolean finished = false;
+	
+	/**
+	 * player, opponent, or tie
+	 */
+	String winner = "";
 
 	/**
 	 * Default constructor. {@link Board.marbles} set to {@link Mancala#MARBLES}.
@@ -70,9 +70,9 @@ public class Board {
 	Board() {
 		marbles = new int[14];
 		System.arraycopy(Mancala.MARBLES, 0, marbles, 0, 14);
-		this.move = true;
 		this.moves = new int[MOSTMOVES];
 		currentMove = 0;
+
 	}
 
 	/**
@@ -83,7 +83,6 @@ public class Board {
 	Board(int[] marbles) {
 		this.marbles = new int[marbles.length];
 		System.arraycopy(marbles, 0, this.marbles, 0, marbles.length);
-		this.move = true;
 		this.moves = new int[MOSTMOVES];
 		currentMove = 0;
 	}
@@ -93,10 +92,9 @@ public class Board {
 	 * @param move
 	 * @param moves
 	 */
-	Board(int[] marbles, boolean move, int[] moves) {
+	Board(int[] marbles, int[] moves) {
 		this.marbles = new int[marbles.length];
 		System.arraycopy(marbles, 0, this.marbles, 0, marbles.length);
-		this.move = move;
 		this.moves = moves;
 		currentMove = 0;
 	}
@@ -107,10 +105,9 @@ public class Board {
 	 * @param moves
 	 * @param currentMove
 	 */
-	Board(int[] marbles, boolean move, int[] moves, int currentMove) {
+	Board(int[] marbles, int[] moves, int currentMove) {
 		this.marbles = new int[marbles.length];
 		System.arraycopy(marbles, 0, this.marbles, 0, marbles.length);
-		this.move = move;
 		this.moves = moves;
 		this.currentMove = currentMove;
 	}
@@ -125,8 +122,8 @@ public class Board {
 		this.currentMove = board.currentMove;
 		this.marbles = new int[board.marbles.length];
 		System.arraycopy(board.marbles, 0, this.marbles, 0, board.marbles.length);
-		this.move = board.move;
 		this.moves = new int[MOSTMOVES];
+		this.playerMove = board.playerMove;
 		System.arraycopy(board.moves, 0, this.moves, 0, board.moves.length);
 
 	}
@@ -136,78 +133,97 @@ public class Board {
 	 * 
 	 * @param pickUp the pocket to play the game from
 	 */
-	public void playPlayer(int pickUp) {
-		if (move) {
-			moves[currentMove] = pickUp + 1;
-			// System.out.println(pickUp + "," + currentMove);
-			currentMove++;
+	private void playPlayer(int pickUp) {
+		moves[currentMove] = pickUp + 1;
+		// System.out.println(pickUp + "," + currentMove);
+		currentMove++;
+
+		int current = marbles[pickUp];
+		marbles[pickUp] = 0;
+		int currentPocket = pickUp;
+		for (int i = 0; i < current; i++) {
+			currentPocket = (currentPocket + 1) % 13;
+			marbles[currentPocket]++;
 		}
-
-		move = false;
-
-		if (marbles[pickUp] > 0) {
-			int current = marbles[pickUp];
-			marbles[pickUp] = 0;
-			int currentPocket = pickUp;
-			for (int i = 0; i < current; i++) {
-				currentPocket = (currentPocket + 1) % 13;
-				marbles[currentPocket]++;
-			}
-			/**
-			 * Give a new turn if last marble is your bank or takes opponet's
-			 */
-			if (currentPocket == 6) {
-				move = true;
-			} else if (currentPocket < 6 && marbles[currentPocket] == 1) {
-				int oppositePocket = 12 - currentPocket;
-				if (marbles[oppositePocket] > 0) {
-					marbles[6] += marbles[currentPocket] + marbles[oppositePocket];
-					marbles[currentPocket] = 0;
-					marbles[oppositePocket] = 0;
-				}
+		/**
+		 * Give a new turn if last marble is your bank or takes opponet's
+		 */
+		if (currentPocket < 6 && marbles[currentPocket] == 1) {
+			int oppositePocket = 12 - currentPocket;
+			if (marbles[oppositePocket] > 0) {
+				marbles[6] += marbles[currentPocket] + marbles[oppositePocket];
+				marbles[currentPocket] = 0;
+				marbles[oppositePocket] = 0;
 			}
 		}
-		if (!move)
+
+		if (currentPocket != 6)
 			playerMove = false;
 	}
 
 	/**
-	 * @param pickUp
+	 * @param pickUp the starting pocket (0-6) on the opponents side.
 	 */
-	public void playOpponent(int pickUp) {
-		if (move) {
-			moves[currentMove] = pickUp + 1;
-			currentMove++;
+	private void playOpponent(int pickUp) {
+		pickUp += 7;
+		moves[currentMove] = pickUp;
+		currentMove++;
+
+		int current = marbles[pickUp];
+		marbles[pickUp] = 0;
+		int currentPocket = pickUp;
+		for (int i = 0; i < current; i++) {
+			currentPocket = (currentPocket + 1) % 14;
+			if (currentPocket == 6)
+				currentPocket++;
+			marbles[currentPocket]++;
 		}
-
-		move = false;
-
-		if (marbles[pickUp] > 0) {
-			int current = marbles[pickUp];
-			marbles[pickUp] = 0;
-			int currentPocket = pickUp;
-			for (int i = 0; i < current; i++) {
-				currentPocket = (currentPocket + 1) % 14;
-				if (currentPocket == 6)
-					currentPocket++;
-				marbles[currentPocket]++;
-			}
-			/**
-			 * Give a new turn if last marble is your bank or takes opponet's
-			 */
-			if (currentPocket == 13) {
-				move = true;
-			} else if (currentPocket > 6 && currentPocket != 13 && marbles[currentPocket] == 1) {
-				int oppositePocket = 6 - (currentPocket - 6);
-				if (marbles[oppositePocket] > 0) {
-					marbles[13] += marbles[currentPocket] + marbles[oppositePocket];
-					marbles[currentPocket] = 0;
-					marbles[oppositePocket] = 0;
-				}
+		/**
+		 * Give a new turn if last marble is your bank or takes opponet's
+		 */
+		if (currentPocket > 6 && currentPocket != 13 && marbles[currentPocket] == 1) {
+			int oppositePocket = 6 - (currentPocket - 6);
+			if (marbles[oppositePocket] > 0) {
+				marbles[13] += marbles[currentPocket] + marbles[oppositePocket];
+				marbles[currentPocket] = 0;
+				marbles[oppositePocket] = 0;
 			}
 		}
-		if (!move)
+
+		if (currentPocket != 13)
 			playerMove = true;
+	}
+
+	public void play(int pickUp) {
+		if (canPlay(pickUp)) {
+			if (playerMove)
+				playPlayer(pickUp);
+			else
+				playOpponent(pickUp);
+			if (!possibleMoveOpponent()) {
+				for (int i = 0; i < 6; i++) {
+					marbles[6] += marbles[i];
+					marbles[i] = 0;
+				}
+				finished = true;
+				if (marbles[6] > marbles[13]) 
+					winner = "player";
+				else if (marbles[6] == marbles[13])
+					winner = "tie";
+				else winner = "opponent";
+			} else if (!possibleMovePlayer()) {
+				for (int i = 0; i < 6; i++) {
+					marbles[13] += marbles[i + 7];
+					marbles[i + 7] = 0;
+				}
+				finished = true;
+				if (marbles[6] > marbles[13]) 
+					winner = "player";
+				else if (marbles[6] == marbles[13])
+					winner = "tie";
+				else winner = "opponent";
+			}
+		}
 	}
 
 	/**
@@ -221,7 +237,7 @@ public class Board {
 			if (i + 1 < currentMove)
 				out = out + ", ";
 		}
-		out = out + " : " + move + " : ";
+		out = out + " : " + playerMove + " : ";
 		for (int i = 0; i < marbles.length; i++) {
 			out = out + marbles[i];
 			if (i + 1 < marbles.length)
@@ -265,27 +281,46 @@ public class Board {
 		return new Object[] { getMovesString(), marbles[6], getMarblesString(), Integer.toString(currentMove) };
 	}
 
-	public static Board findBest(List<Board> boards) {
-		int bestMarbles = 0;
-		int bestIndex = 0;
-		for (int i = 0; i < boards.size(); i++) {
-			if (bestMarbles < boards.get(i).marbles[6]) {
-				bestMarbles = boards.get(i).marbles[6];
-				bestIndex = i;
-			} else if (bestMarbles == boards.get(i).marbles[6]
-					&& boards.get(bestIndex).currentMove > boards.get(i).currentMove) {
-				bestIndex = i;
-			}
-		}
-		return new Board(boards.get(bestIndex));
+	/**
+	 * If the player can take a move from the pocket.
+	 * 
+	 * @param pocket
+	 * @return
+	 */
+	public boolean canPlay(int pocket) {
+		if (playerMove)
+			return (marbles[pocket] > 0);
+		else
+			return (marbles[pocket + 7] > 0);
 	}
 
-	public int getMarble(int pocket) {
-		return marbles[pocket];
+	public boolean possibleMove() {
+		return possibleMovePlayer() && possibleMoveOpponent();
+	}
+
+	boolean possibleMovePlayer() {
+		for (int i = 0; i < 6; i++)
+			if (marbles[i] > 0)
+				return true;
+		return false;
+	}
+
+	boolean possibleMoveOpponent() {
+		for (int i = 0; i < 6; i++)
+			if (marbles[i + 7] > 0)
+				return true;
+		return false;
 	}
 	
-	private boolean possibleMove() {
-		if 
+	/**
+	 * Returns the score difference
+	 * @param player From the players perspective?
+	 * @return 
+	 */
+	public int scoreDiff(boolean player) {
+		if (player)
+			return marbles[6] - marbles [13];
+		else return marbles[13] - marbles [6];
 	}
 
 }

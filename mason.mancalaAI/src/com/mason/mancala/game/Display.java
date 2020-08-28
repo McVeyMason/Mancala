@@ -11,8 +11,8 @@ import java.awt.image.DataBufferInt;
 
 import javax.swing.JFrame;
 
-import com.mason.mancala.input.InputHandler;
-import com.mason.mancala.input.InputProcesser;
+import com.mason.mancala.game.input.InputHandler;
+import com.mason.mancala.game.input.InputProcesser;
 
 public class Display extends Canvas {
 
@@ -93,8 +93,9 @@ public class Display extends Canvas {
 	private void drawMarbles(Board board, Graphics g) {
 
 		g.drawString(board.text, 0, g.getFont().getSize());
-		g.drawString("Your Move:" + board.playerMove, WIDTH *5/8, g.getFont().getSize());
-		//g.drawString("Your Move:" + board.playerMove, WIDTH *5/8, g.getFont().getSize());
+		g.drawString("Your Move:" + board.playerMove, WIDTH * 5 / 8, g.getFont().getSize());
+		if (board.finished)
+			g.drawString("winner:" + board.winner, WIDTH * 5 / 8, 2 * g.getFont().getSize());
 		for (int i = 0; i < 6; i++) {
 			if (board.marbles[i] > 0)
 				g.drawString(Integer.toString(board.marbles[i]), (i + 1) * WIDTH / 8 + (WIDTH / 16),

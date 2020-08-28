@@ -1,13 +1,9 @@
 package com.mason.mancala.game;
 
-import java.awt.Canvas;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
-import java.util.List;
-import java.util.Scanner;
 
-import com.mason.mancala.input.InputHandler;
-import com.mason.mancala.input.InputProcesser;
+import com.mason.mancala.game.ai.AI;
 
 /**
  * This class plays the game mancala in order to find the best possibles moves.
@@ -18,11 +14,6 @@ import com.mason.mancala.input.InputProcesser;
  *
  */
 public class Mancala implements Runnable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4125969329660533619L;
 
 	/**
 	 * Half of the default array of marbles. Duplicated to make
@@ -124,7 +115,7 @@ public class Mancala implements Runnable {
 		thread.start();
 	}
 
-	private void stop() {
+	public void stop() {
 		if (!running)
 			return;
 		running = false;
@@ -143,9 +134,10 @@ public class Mancala implements Runnable {
 		double coolDown = 0.5;
 		long downTime = 0;
 		long previousTime = System.nanoTime();
+		long currentTime = System.nanoTime();
 		double frameTime = 1 / FPS;
 		while (running) {
-			long currentTime = System.nanoTime();
+			currentTime = System.nanoTime();
 			previousTime = currentTime;
 			long passedTime = currentTime - previousTime;
 			double passedSeconds = passedTime / 1000000000.0;
@@ -178,37 +170,22 @@ public class Mancala implements Runnable {
 		for (int i = 0; i < playSlots.length; i++) {
 			if (board.playerMove) {
 				if (playSlots[i] && board.marbles[i] > 0) {
-					board.playPlayer(i);
+					board.play(i);
 					return true;
 				}
 			} else {
 				if (playSlots[i] && board.marbles[i + 7] > 0) {
-					board.playOpponent(i + 7);
+					board.play(i);
 					return true;
 				}
 			}
 		}
-		return false;
-	}
-
-	/**
-	 * Tries all the possible moves on boards.
-	 * 
-	 * @param boards
-	 */
-	public static void tryMoves(List<Board> boards, List<Board> bests) {
-		bests.add(Board.findBest(boards));
-		Board.findBest(bests).printBoard();
-	}
-
-	private static String getMarbleLayout(int[] marbles) {
-		String marbleString = "";
-		for (int i = 0; i < marbles.length; i++) {
-			marbleString = marbleString + marbles[i];
-			if (i + 1 < marbles.length)
-				marbleString = marbleString + ".";
+		if (y_n[0] && !y_n[1]) {
+			AI ai = new AI();
+			ai.findBest(board).printBoard();
+			return true;
 		}
-		return marbleString;
+		return false;
 	}
 
 	/**
@@ -241,14 +218,5 @@ public class Mancala implements Runnable {
 		}
 
 		return false;
-	}
-
-	/**
-	 * @param board Board to be read.
-	 * @return An object of different aspects of board.
-	 */
-	private static Object[] boardText(Board board) {
-		return new Object[] { board.getMovesString(), board.marbles[6], board.getMarblesString(),
-				Integer.toString(board.currentMove) };
 	}
 }
