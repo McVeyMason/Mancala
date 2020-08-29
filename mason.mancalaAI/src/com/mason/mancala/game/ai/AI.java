@@ -19,74 +19,89 @@ public class AI {
 		scores = new ArrayList<String>();
 	}
 
-	private int minMaxScore(Board board, int currentLayer, ArrayList<Integer> currentTree) {
+	private Score minMaxScore(Board board, int currentLayer, String[] currentTree) {
 
 		if (currentLayer < maxDepth && board.possibleMove()) {
-			//if (currentLayer == 2)
+			//if (currentLayer == 5)
 			//	System.out.println(numChecked);
 			return minMaxTurn(board, currentLayer, currentTree, board.playerMove, 0);
 		} else {
 			numChecked++;
-			return board.scoreDiff(playerMove);
+			return new Score(board.scoreDiff(playerMove), false);
 		}
 	}
 
-	private int minMaxTurn(Board board, int currentLayer, ArrayList<Integer> currentTree, boolean move, int turnNum) {
-		int bestScore = 0;
+	private Score minMaxTurn(Board board, int currentLayer, String[] currentTree, boolean move, int turnNum) {
+		Score bestScore = new Score(0, false);
 		boolean hasBest = false;
 		for (int i = 0; i < 6; i++) {
-			/*
-			if (hasBest)
-				currentTree.add(bestScore);
-			if (hasBest && currentLayer > 1 && currentTree.size() > 1) {
-				if (currentLayer % 2 == 0 ) {
-					if (bestScore <= currentTree.get(currentTree.size() - 2))
-						return bestScore;
-				} else {
-					if (bestScore >= currentTree.get(currentTree.size() - 2))
-						return bestScore;
+
+			if (hasBest) {
+				if (bestScore.pass) {
+					currentTree[currentLayer] = null;
+					return bestScore.continuePass();
 				}
-					
-			}*/
-			
+				currentTree[currentLayer] = Integer.toString(bestScore.score);
+			}
+			if (hasBest && currentLayer > 1 && currentTree[currentLayer - 2] != null) {
+				if (currentLayer % 2 == 0) {
+					if (bestScore.score <= Integer.parseInt(currentTree[currentLayer - 2])) {
+						currentTree[currentLayer] = null;
+						return bestScore.pass();
+					}
+				} else {
+					if (bestScore.score >= Integer.parseInt(currentTree[currentLayer - 2])) {
+						currentTree[currentLayer] = null;
+						return bestScore.pass();
+					}
+				}
+
+			}
+
 			if (board.canPlay(i)) {
 				Board child = new Board(board);
 				child.play(i);
 
 				if (move == child.playerMove) {
+					Score minMax = minMaxTurn(child, currentLayer, currentTree, move, turnNum + 1);
+					if (minMax.pass)
+						return minMax;
 					if (hasBest) {
 						if (currentLayer == 0 && turnNum == 0) {
-							int minMax = minMaxTurn(child, currentLayer, currentTree, move, turnNum + 1);
-							scores.add(Integer.toString(minMax));
-							bestScore = Math.max(bestScore, minMax);
+							scores.add(Integer.toString(minMax.score));
+							bestScore.score = Math.max(bestScore.score, minMax.score);
 						} else if (currentLayer % 2 == 0)
-							bestScore = Math.max(bestScore, minMaxTurn(child, currentLayer, currentTree, move, turnNum + 1));
+							bestScore.score = Math.max(bestScore.score, minMax.score);
 						else
-							bestScore = Math.min(bestScore, minMaxTurn(child, currentLayer, currentTree, move, turnNum + 1));
+							bestScore.score = Math.min(bestScore.score, minMax.score);
 					} else {
 						if (currentLayer == 0 && turnNum == 0) {
-							bestScore = minMaxTurn(child, currentLayer, currentTree, move, turnNum + 1);
-							scores.add(Integer.toString(bestScore));
+							bestScore = minMax;
+							scores.add(Integer.toString(bestScore.score));
 						} else
-							bestScore = minMaxTurn(child, currentLayer, currentTree, move, turnNum + 1);
+							bestScore = minMax;
 						hasBest = true;
 					}
 				} else {
+					Score minMax = minMaxScore(child, currentLayer + 1, currentTree);
+					if (minMax.pass) {
+						currentTree[currentLayer] = null;
+						return minMax.continuePass();
+					}
 					if (hasBest) {
 						if (currentLayer == 0 && turnNum == 0) {
-							int minMax = minMaxScore(child, currentLayer + 1, currentTree);
-							scores.add(Integer.toString(minMax));
-							bestScore = Math.max(bestScore, minMax);
+							scores.add(Integer.toString(minMax.score));
+							bestScore.score = Math.max(bestScore.score, minMax.score);
 						} else if (currentLayer % 2 == 0)
-							bestScore = Math.max(bestScore, minMaxScore(child, currentLayer + 1, currentTree));
+							bestScore.score = Math.max(bestScore.score, minMax.score);
 						else
-							bestScore = Math.min(bestScore, minMaxScore(child, currentLayer + 1, currentTree));
+							bestScore.score = Math.min(bestScore.score, minMax.score);
 					} else {
 						if (currentLayer == 0 && turnNum == 0) {
-							bestScore = minMaxScore(child, currentLayer + 1, currentTree);
-							scores.add(Integer.toString(bestScore));
+							bestScore = minMax;
+							scores.add(Integer.toString(bestScore.score));
 						} else
-							bestScore = minMaxScore(child, currentLayer + 1, currentTree);
+							bestScore = minMax;
 						hasBest = true;
 					}
 				}
@@ -98,18 +113,22 @@ public class AI {
 			return bestScore;
 		else {
 			numChecked++;
-			return board.scoreDiff(playerMove);
+			return new Score(board.scoreDiff(playerMove), false);
 		}
 	}
 
 	public int findBestMove(Board board) {
 
-		ArrayList<Integer> currentTree = new ArrayList<Integer>();
+		String[] currentTree = new String[maxDepth];
+		for (int i = 0; i < currentTree.length; i++) {
+			currentTree[i] = null;
+		}
 		playerMove = board.playerMove;
 		scores.clear();
-		int bestScore = minMaxScore(board, 0, currentTree);
+		Score bestScore = minMaxScore(board, 0, currentTree);
 
-		System.out.println(bestScore);
+		/*
+		System.out.println(bestScore.score);
 
 		for (int i = 0; i < scores.size(); i++) {
 			System.out.print(scores.get(i) + ",");
@@ -117,9 +136,9 @@ public class AI {
 		System.out.println();
 
 		System.out.println("Checked: " + numChecked);
-
+*/
 		for (int i = 0; i < 6; i++) {
-			if (scores.get(i) != null && Integer.parseInt(scores.get(i)) == bestScore)
+			if (scores.get(i) != null && Integer.parseInt(scores.get(i)) == bestScore.score)
 				return i;
 		}
 

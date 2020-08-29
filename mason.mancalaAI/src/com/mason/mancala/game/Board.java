@@ -21,6 +21,21 @@ public class Board {
 	public int[] marbles;
 
 	/**
+	 * Stored as 1 is the first pocket (index 0) and 12 in the last (index 12).
+	 */
+	int[] moves;
+
+	/**
+	 * The current move of the board.
+	 */
+	int currentMove;
+
+	/**
+	 * The maximum moves the player will make
+	 */
+	static final int MOSTMOVES = 70;
+
+	/**
 	 * The text above the board.
 	 */
 	String text = "";
@@ -55,6 +70,8 @@ public class Board {
 	Board() {
 		marbles = new int[14];
 		System.arraycopy(Mancala.MARBLES, 0, marbles, 0, 14);
+		this.moves = new int[MOSTMOVES];
+		currentMove = 0;
 	}
 
 	/**
@@ -65,6 +82,8 @@ public class Board {
 	Board(int[] marbles) {
 		this.marbles = new int[marbles.length];
 		System.arraycopy(marbles, 0, this.marbles, 0, marbles.length);
+		this.moves = new int[MOSTMOVES];
+		currentMove = 0;
 	}
 
 	/**
@@ -75,6 +94,8 @@ public class Board {
 	Board(int[] marbles, int[] moves) {
 		this.marbles = new int[marbles.length];
 		System.arraycopy(marbles, 0, this.marbles, 0, marbles.length);
+		this.moves = moves;
+		currentMove = 0;
 	}
 
 	/**
@@ -86,6 +107,8 @@ public class Board {
 	Board(int[] marbles, int[] moves, int currentMove) {
 		this.marbles = new int[marbles.length];
 		System.arraycopy(marbles, 0, this.marbles, 0, marbles.length);
+		this.moves = moves;
+		this.currentMove = currentMove;
 	}
 
 	/**
@@ -95,9 +118,12 @@ public class Board {
 	 * @return a deep copy of the Board
 	 */
 	public Board(Board board) {
+		this.currentMove = board.currentMove;
 		this.marbles = new int[board.marbles.length];
 		System.arraycopy(board.marbles, 0, this.marbles, 0, board.marbles.length);
 		this.playerMove = board.playerMove;
+		this.moves = new int[MOSTMOVES];
+		System.arraycopy(board.moves, 0, this.moves, 0, board.moves.length);
 
 	}
 
@@ -204,7 +230,11 @@ public class Board {
 	public void printBoard() {
 		String out = new String();
 		out = marbles[6] + " : ";
-		
+		for (int i = 0; i < currentMove; i++) {
+			out = out + Integer.toString(moves[i]);
+			if (i + 1 < currentMove)
+				out = out + ", ";
+		}
 		out = out + " : " + playerMove + " : ";
 		for (int i = 0; i < marbles.length; i++) {
 			out = out + marbles[i];
@@ -220,6 +250,11 @@ public class Board {
 	 */
 	public String getMovesString() {
 		String moveString = "";
+		for (int i = 0; i < this.currentMove; i++) {
+			moveString = moveString + moves[i];
+			if (i + 1 < this.currentMove)
+				moveString = moveString + ", ";
+		}
 		return moveString;
 	}
 
@@ -235,13 +270,14 @@ public class Board {
 		}
 		return marbleString;
 	}
-
+	
 	/**
 	 * @param board Board to be read.
 	 * @return An object of different aspects of board.
 	 */
 	public Object[] boardText() {
-		return new Object[] { getMovesString(), marbles[6], getMarblesString()};
+		return new Object[] { getMovesString(), marbles[6], getMarblesString(),
+				Integer.toString(currentMove) };
 	}
 
 	/**

@@ -167,7 +167,7 @@ public class Mancala implements Runnable {
 	}
 
 	private boolean move(Board board) {
-		if (board.playerMove) {
+		//if (board.playerMove) {
 			for (int i = 0; i < playSlots.length; i++) {
 				if (board.playerMove) {
 					if (playSlots[i] && board.marbles[i] > 0) {
@@ -185,12 +185,14 @@ public class Mancala implements Runnable {
 				boolean move = board.playerMove;
 				while (move == board.playerMove) {
 					AI ai = new AI(15);
-					board.play(ai.findBestMove(board));
+					int bestMove  = ai.findBestMove(board);
+					System.out.println(bestMove);
+					board.play(bestMove);
 					window.render(board);
 				}
 				return true;
 			}
-		} else {
+		/*} else {
 			boolean move = board.playerMove;
 			while (move == board.playerMove) {
 				AI ai = new AI(4);
@@ -198,7 +200,7 @@ public class Mancala implements Runnable {
 				window.render(board);
 			}
 			return true;
-		}
+		}*/
 		return false;
 	}
 
