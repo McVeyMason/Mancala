@@ -45,12 +45,12 @@ public class AI {
 			}
 			if (hasBest && currentLayer > 1 && currentTree[currentLayer - 2] != null) {
 				if (currentLayer % 2 == 0) {
-					if (bestScore.score <= Integer.parseInt(currentTree[currentLayer - 2])) {
+					if (bestScore.score < Integer.parseInt(currentTree[currentLayer - 2])) {
 						currentTree[currentLayer] = null;
 						return bestScore.pass();
 					}
 				} else {
-					if (bestScore.score >= Integer.parseInt(currentTree[currentLayer - 2])) {
+					if (bestScore.score > Integer.parseInt(currentTree[currentLayer - 2])) {
 						currentTree[currentLayer] = null;
 						return bestScore.pass();
 					}
@@ -127,6 +127,7 @@ public class AI {
 		scores.clear();
 		Score bestScore = minMaxScore(board, 0, currentTree);
 
+		System.out.println(numChecked);
 		/*
 		System.out.println(bestScore.score);
 
