@@ -167,22 +167,36 @@ public class Mancala implements Runnable {
 	}
 
 	private boolean move(Board board) {
-		for (int i = 0; i < playSlots.length; i++) {
-			if (board.playerMove) {
-				if (playSlots[i] && board.marbles[i] > 0) {
-					board.play(i);
-					return true;
-				}
-			} else {
-				if (playSlots[i] && board.marbles[i + 7] > 0) {
-					board.play(i);
-					return true;
+		if (board.playerMove) {
+			for (int i = 0; i < playSlots.length; i++) {
+				if (board.playerMove) {
+					if (playSlots[i] && board.marbles[i] > 0) {
+						board.play(i);
+						return true;
+					}
+				} else {
+					if (playSlots[i] && board.marbles[i + 7] > 0) {
+						board.play(i);
+						return true;
+					}
 				}
 			}
-		}
-		if (y_n[0] && !y_n[1]) {
-			AI ai = new AI();
-			ai.findBest(board).printBoard();
+			if (y_n[0] && !y_n[1]) {
+				boolean move = board.playerMove;
+				while (move == board.playerMove) {
+					AI ai = new AI(15);
+					board.play(ai.findBestMove(board));
+					window.render(board);
+				}
+				return true;
+			}
+		} else {
+			boolean move = board.playerMove;
+			while (move == board.playerMove) {
+				AI ai = new AI(4);
+				board.play(ai.findBestMove(board));
+				window.render(board);
+			}
 			return true;
 		}
 		return false;

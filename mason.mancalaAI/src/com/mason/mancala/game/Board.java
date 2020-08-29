@@ -21,21 +21,6 @@ public class Board {
 	public int[] marbles;
 
 	/**
-	 * Stored as 1 is the first pocket (index 0) and 12 in the last (index 12).
-	 */
-	public int[] moves;
-
-	/**
-	 * The current move of the board.
-	 */
-	public int currentMove;
-
-	/**
-	 * The maximum moves the player will make
-	 */
-	static final int MOSTMOVES = 70;
-
-	/**
 	 * The text above the board.
 	 */
 	String text = "";
@@ -43,7 +28,7 @@ public class Board {
 	/**
 	 * If it is the player's turn.
 	 */
-	public boolean playerMove;
+	public boolean playerMove = true;
 
 	/**
 	 * If the game is playing.
@@ -51,12 +36,12 @@ public class Board {
 	boolean playing = false;
 
 	boolean prompt = true;
-	
+
 	/**
 	 * If the game is finished
 	 */
-	boolean finished = false;
-	
+	public boolean finished = false;
+
 	/**
 	 * player, opponent, or tie
 	 */
@@ -70,9 +55,6 @@ public class Board {
 	Board() {
 		marbles = new int[14];
 		System.arraycopy(Mancala.MARBLES, 0, marbles, 0, 14);
-		this.moves = new int[MOSTMOVES];
-		currentMove = 0;
-
 	}
 
 	/**
@@ -83,8 +65,6 @@ public class Board {
 	Board(int[] marbles) {
 		this.marbles = new int[marbles.length];
 		System.arraycopy(marbles, 0, this.marbles, 0, marbles.length);
-		this.moves = new int[MOSTMOVES];
-		currentMove = 0;
 	}
 
 	/**
@@ -95,8 +75,6 @@ public class Board {
 	Board(int[] marbles, int[] moves) {
 		this.marbles = new int[marbles.length];
 		System.arraycopy(marbles, 0, this.marbles, 0, marbles.length);
-		this.moves = moves;
-		currentMove = 0;
 	}
 
 	/**
@@ -108,8 +86,6 @@ public class Board {
 	Board(int[] marbles, int[] moves, int currentMove) {
 		this.marbles = new int[marbles.length];
 		System.arraycopy(marbles, 0, this.marbles, 0, marbles.length);
-		this.moves = moves;
-		this.currentMove = currentMove;
 	}
 
 	/**
@@ -119,12 +95,9 @@ public class Board {
 	 * @return a deep copy of the Board
 	 */
 	public Board(Board board) {
-		this.currentMove = board.currentMove;
 		this.marbles = new int[board.marbles.length];
 		System.arraycopy(board.marbles, 0, this.marbles, 0, board.marbles.length);
-		this.moves = new int[MOSTMOVES];
 		this.playerMove = board.playerMove;
-		System.arraycopy(board.moves, 0, this.moves, 0, board.moves.length);
 
 	}
 
@@ -134,9 +107,6 @@ public class Board {
 	 * @param pickUp the pocket to play the game from
 	 */
 	private void playPlayer(int pickUp) {
-		moves[currentMove] = pickUp + 1;
-		// System.out.println(pickUp + "," + currentMove);
-		currentMove++;
 
 		int current = marbles[pickUp];
 		marbles[pickUp] = 0;
@@ -166,8 +136,6 @@ public class Board {
 	 */
 	private void playOpponent(int pickUp) {
 		pickUp += 7;
-		moves[currentMove] = pickUp;
-		currentMove++;
 
 		int current = marbles[pickUp];
 		marbles[pickUp] = 0;
@@ -206,22 +174,26 @@ public class Board {
 					marbles[i] = 0;
 				}
 				finished = true;
-				if (marbles[6] > marbles[13]) 
+				playerMove = false;
+				if (marbles[6] > marbles[13])
 					winner = "player";
 				else if (marbles[6] == marbles[13])
 					winner = "tie";
-				else winner = "opponent";
+				else
+					winner = "opponent";
 			} else if (!possibleMovePlayer()) {
 				for (int i = 0; i < 6; i++) {
 					marbles[13] += marbles[i + 7];
 					marbles[i + 7] = 0;
 				}
 				finished = true;
-				if (marbles[6] > marbles[13]) 
+				playerMove = true;
+				if (marbles[6] > marbles[13])
 					winner = "player";
 				else if (marbles[6] == marbles[13])
 					winner = "tie";
-				else winner = "opponent";
+				else
+					winner = "opponent";
 			}
 		}
 	}
@@ -232,11 +204,7 @@ public class Board {
 	public void printBoard() {
 		String out = new String();
 		out = marbles[6] + " : ";
-		for (int i = 0; i < currentMove; i++) {
-			out = out + Integer.toString(moves[i]);
-			if (i + 1 < currentMove)
-				out = out + ", ";
-		}
+		
 		out = out + " : " + playerMove + " : ";
 		for (int i = 0; i < marbles.length; i++) {
 			out = out + marbles[i];
@@ -252,11 +220,6 @@ public class Board {
 	 */
 	public String getMovesString() {
 		String moveString = "";
-		for (int i = 0; i < this.currentMove; i++) {
-			moveString = moveString + moves[i];
-			if (i + 1 < this.currentMove)
-				moveString = moveString + ", ";
-		}
 		return moveString;
 	}
 
@@ -278,7 +241,7 @@ public class Board {
 	 * @return An object of different aspects of board.
 	 */
 	public Object[] boardText() {
-		return new Object[] { getMovesString(), marbles[6], getMarblesString(), Integer.toString(currentMove) };
+		return new Object[] { getMovesString(), marbles[6], getMarblesString()};
 	}
 
 	/**
@@ -288,10 +251,13 @@ public class Board {
 	 * @return
 	 */
 	public boolean canPlay(int pocket) {
-		if (playerMove)
-			return (marbles[pocket] > 0);
+		if (pocket >= 0 && pocket < 6)
+			if (playerMove)
+				return (marbles[pocket] > 0);
+			else
+				return (marbles[pocket + 7] > 0);
 		else
-			return (marbles[pocket + 7] > 0);
+			return false;
 	}
 
 	public boolean possibleMove() {
@@ -311,16 +277,18 @@ public class Board {
 				return true;
 		return false;
 	}
-	
+
 	/**
 	 * Returns the score difference
+	 * 
 	 * @param player From the players perspective?
-	 * @return 
+	 * @return
 	 */
 	public int scoreDiff(boolean player) {
 		if (player)
-			return marbles[6] - marbles [13];
-		else return marbles[13] - marbles [6];
+			return marbles[6] - marbles[13];
+		else
+			return marbles[13] - marbles[6];
 	}
 
 }
