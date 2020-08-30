@@ -11,6 +11,7 @@ import java.awt.image.DataBufferInt;
 
 import javax.swing.JFrame;
 
+import com.mason.mancala.game.board.Board;
 import com.mason.mancala.game.input.InputHandler;
 import com.mason.mancala.game.input.InputProcesser;
 
@@ -94,7 +95,7 @@ public class Display extends Canvas {
 
 		g.drawString(board.text, 0, g.getFont().getSize());
 		g.drawString("Your Move:" + board.playerMove, WIDTH * 5 / 8, g.getFont().getSize());
-		if (board.finished)
+		if (board.winNum != -1)
 			g.drawString("winner:" + board.winner, WIDTH * 5 / 8, 2 * g.getFont().getSize());
 		for (int i = 0; i < 6; i++) {
 			if (board.marbles[i] > 0)

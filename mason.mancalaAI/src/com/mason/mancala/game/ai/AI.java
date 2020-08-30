@@ -1,8 +1,10 @@
 package com.mason.mancala.game.ai;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
-import com.mason.mancala.game.Board;
+import com.mason.mancala.game.board.Board;
+import com.mason.mancala.game.board.BoardArray;
 
 public class AI {
 
@@ -11,36 +13,70 @@ public class AI {
 
 	private static final int MIN = -48;
 	private static final int MAX = -MIN;
+
+	private static final boolean HASHING = false;
 	/**
 	 * Uses string format so null is no move;
 	 */
 	private ArrayList<String> scores;
+
+	private HashMap<Long, int[]> hm;
+
+	private int lastBestMove = -1;
+
+	@SuppressWarnings("unused")
 	private long numChecked = 0;
 
-	public AI(int maxDepth) {
-		this.maxDepth = maxDepth;
+	public AI() {
 		scores = new ArrayList<String>();
+
+		hm = new HashMap<Long, int[]>();
+
 	}
 
-	private int minMaxScore(Board board, int currentLayer, int alpha, int beta) {
+	private int minMaxScore(BoardArray boardArray, int depth, int alpha, int beta) {
 
-		if (currentLayer < maxDepth && board.possibleMove()) {
+		if (depth < maxDepth && boardArray.possibleMove()) {
 			// if (currentLayer == 5)
 			// System.out.println(numChecked);
-			return minMaxTurn(board, currentLayer, alpha, beta, board.playerMove, 0);
+			int minMax = minMaxTurn(boardArray, depth, alpha, beta, boardArray.playerMove, 0);
+			if (HASHING)
+				if (hm.containsKey(boardArray.hashNum()))
+					hm.replace(boardArray.hashNum(), createHash(boardArray, minMax, lastBestMove, 0, 255));
+				else
+					hm.put(boardArray.hashNum(), createHash(boardArray, minMax, lastBestMove, 0, 255));
+			return minMaxTurn(boardArray, depth, alpha, beta, boardArray.playerMove, 0);
 		} else {
+			lastBestMove = -1;
 			numChecked++;
-			return board.scoreDiff(playerMove);
+			return  boardArray.scoreDiff(playerMove);
 		}
 	}
 
-	private int minMaxTurn(Board board, int currentLayer, int alpha, int beta, boolean move, int turnNum) {
+	private int minMaxTurn(BoardArray boardArray, int depth, int alpha, int beta, boolean move, int turnNum) {
 		int bestScore = 0;
+		int bestMove = -1;
+		int oldBest = 0;
 		boolean hasBest = false;
+
+		if (HASHING)
+			if (hm.containsKey(boardArray.hashNum())) {
+				BoardArray child = new BoardArray(boardArray);
+				int moveNum = hm.get(boardArray.hashNum())[2];
+				child.play(moveNum);
+				if (move == child.playerMove) {
+					// bestScore = minMaxTurn(child, depth, alpha, beta, move, turnNum + 1);
+				} else {
+					bestScore = minMaxScore(child, depth + 1, alpha, beta);
+					bestMove = moveNum;
+					hasBest = true;
+				}
+			}
+
 		for (int i = 0; i < 6; i++) {
 
 			if (hasBest) {
-				if (currentLayer % 2 == 0) {
+				if (depth % 2 == 0) {
 					alpha = Math.max(alpha, bestScore);
 					if (beta <= alpha)
 						break;
@@ -51,58 +87,80 @@ public class AI {
 				}
 			}
 
-			if (board.canPlay(i)) {
-				Board child = new Board(board);
+			if (boardArray.canPlay(i)) {
+				BoardArray child = new BoardArray(boardArray);
 				child.play(i);
 
 				if (move == child.playerMove) {
-					int minMax = minMaxTurn(child, currentLayer, alpha, beta, move, turnNum + 1);
-
-					if (currentLayer == 0 && turnNum == 0)
+					int minMax = minMaxTurn(child, depth, alpha, beta, move, turnNum + 1);
+					if (depth == 0 && turnNum == 0)
 						scores.add(Integer.toString(minMax));
 
-					if (currentLayer % 2 == 0 && hasBest) {
+					if (depth % 2 == 0 && hasBest) {
 						bestScore = Math.max(bestScore, minMax);
-					} else if (currentLayer % 2 == 1 && hasBest) {
+						if (oldBest < bestScore)
+							bestMove = i;
+					} else if (depth % 2 == 1 && hasBest) {
 						bestScore = Math.min(bestScore, minMax);
+						if (oldBest > bestScore)
+							bestMove = i;
 					} else {
 						bestScore = minMax;
+						bestMove = i;
 						hasBest = true;
 					}
 				} else {
-					int minMax = minMaxScore(child, currentLayer + 1, alpha, beta);
+					int minMax = minMaxScore(child, depth + 1, alpha, beta);
 
-					if (currentLayer == 0 && turnNum == 0)
+					if (depth == 0 && turnNum == 0)
 						scores.add(Integer.toString(minMax));
 
-					if (currentLayer % 2 == 0 && hasBest) {
+					if (depth % 2 == 0 && hasBest) {
 						bestScore = Math.max(bestScore, minMax);
-					} else if (currentLayer % 2 == 1 && hasBest) {
+						if (oldBest < bestScore)
+							bestMove = i;
+					} else if (depth % 2 == 1 && hasBest) {
 						bestScore = Math.min(bestScore, minMax);
+						if (oldBest > bestScore)
+							bestMove = i;
 					} else {
 						bestScore = minMax;
+						bestMove = i;
 						hasBest = true;
 					}
 				}
-			} else if (currentLayer == 0 && turnNum == 0) {
+			} else if (depth == 0 && turnNum == 0) {
 				scores.add(null);
 			}
 		}
-		if (hasBest && board.possibleMove())
+
+		if (hasBest && boardArray.possibleMove()) {
+			if (HASHING)
+				if (hm.containsKey(boardArray.hashNum()))
+					hm.replace(boardArray.hashNum(), createHash(boardArray, bestScore, bestMove, 0, depth));
+				else
+					hm.put(boardArray.hashNum(), createHash(boardArray, bestScore, bestMove, 0, depth));
+			lastBestMove = bestMove;
 			return bestScore;
-		else {
+		} else {
+			if (HASHING)
+				hm.put(boardArray.hashNum(),
+						createHash(boardArray, boardArray.scoreDiff(playerMove), bestMove, 0, depth));
 			numChecked++;
-			return board.scoreDiff(playerMove);
+			lastBestMove = -1;
+			return boardArray.scoreDiff(playerMove);
 		}
 	}
 
-	public int findBestMove(Board board) {
+	public int findBestMove(Board board, int maxDepth) {
+
+		this.maxDepth = maxDepth;
 
 		playerMove = board.playerMove;
 		scores.clear();
-		int bestScore = minMaxScore(board, 0, MIN, MAX);
+		minMaxScore(board, 0, MIN, MAX);
 
-		//System.out.println(numChecked);
+		// System.out.println(numChecked);
 		/*
 		 * System.out.println(bestScore.score);
 		 * 
@@ -110,12 +168,24 @@ public class AI {
 		 * ","); } System.out.println();
 		 * 
 		 * System.out.println("Checked: " + numChecked);
+		 *
+		 * for (int i = 0; i < 6; i++) { if (scores.get(i) != null &&
+		 * Integer.parseInt(scores.get(i)) == bestScore) return i; }
 		 */
-		for (int i = 0; i < 6; i++) {
-			if (scores.get(i) != null && Integer.parseInt(scores.get(i)) == bestScore)
-				return i;
-		}
+		// int[] hmh = hm.get(board.hashNum());
+		// for (int i = 0; i < hmh.length; i++) {
+		System.out.println(lastBestMove);
+		// }
 
-		return -1;
+		return lastBestMove;
+	}
+
+	int[] createHash(BoardArray boardArray, int minMax, int sugestedMove, int flag, int depth) {
+		int pm;
+		if (boardArray.playerMove)
+			pm = 1;
+		else
+			pm = 0;
+		return new int[] { flag, sugestedMove, pm, depth, minMax };
 	}
 }

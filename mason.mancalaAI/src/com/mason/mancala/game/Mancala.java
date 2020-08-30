@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintStream;
 
 import com.mason.mancala.game.ai.AI;
+import com.mason.mancala.game.board.Board;
 
 /**
  * This class plays the game mancala in order to find the best possibles moves.
@@ -83,14 +84,18 @@ public class Mancala implements Runnable {
 	public static boolean[] y_n = new boolean[2];
 
 	static final double FPS = 15.0;
+	
+	AI ai;
 
 	public Mancala() {
 		window = new Display();
+		ai = new AI();
 	}
 
 	public static void main(String[] args) {
 
 		Mancala mancala = new Mancala();
+		
 		System.arraycopy(MARBLES_HALF, 0, MARBLES, 0, 6);
 		System.arraycopy(MARBLES_HALF, 0, MARBLES, 7, 6);
 
@@ -161,9 +166,11 @@ public class Mancala implements Runnable {
 		board.prompt = !board.playing;
 		if (board.prompt) {
 			return setBoard(board);
-		} else {
+		} else if (board.winNum == -1) {
+			//System.out.println(board.hashNum());
 			return move(board);
-		}
+		} else
+			return false;
 	}
 
 	private boolean move(Board board) {
@@ -196,10 +203,19 @@ public class Mancala implements Runnable {
 		} else {*/
 			boolean move = board.playerMove;
 			while (move == board.playerMove && board.possibleMove()) {
-				AI ai = new AI(12);
-				board.play(ai.findBestMove(board));
-				window.render(board);
+				if (board.playerMove) {
+					int bestMove  = ai.findBestMove(board, 10);
+					System.out.println(bestMove);
+					board.playBoard(bestMove);
+					window.render(board);
+				} else {
+					int bestMove  = ai.findBestMove(board, 10);
+					System.out.println(bestMove);
+					board.playBoard(bestMove);
+					window.render(board);
+				}
 			}
+			System.out.println();
 			return false;
 		//}
 		//return false;
