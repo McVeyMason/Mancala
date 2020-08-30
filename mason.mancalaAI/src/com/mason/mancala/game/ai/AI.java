@@ -15,10 +15,6 @@ public class AI {
 	private static final int MAX = -MIN;
 
 	private static final boolean HASHING = false;
-	/**
-	 * Uses string format so null is no move;
-	 */
-	private ArrayList<String> scores;
 
 	private HashMap<Long, int[]> hm;
 
@@ -28,8 +24,6 @@ public class AI {
 	private long numChecked = 0;
 
 	public AI() {
-		scores = new ArrayList<String>();
-
 		hm = new HashMap<Long, int[]>();
 
 	}
@@ -37,7 +31,7 @@ public class AI {
 	private int minMaxScore(BoardArray boardArray, int depth, int alpha, int beta) {
 
 		if (depth < maxDepth && boardArray.possibleMove()) {
-			// if (currentLayer == 5)
+			// if (depth == 5)
 			// System.out.println(numChecked);
 			int minMax = minMaxTurn(boardArray, depth, alpha, beta, boardArray.playerMove, 0);
 			if (HASHING)
@@ -93,8 +87,6 @@ public class AI {
 
 				if (move == child.playerMove) {
 					int minMax = minMaxTurn(child, depth, alpha, beta, move, turnNum + 1);
-					if (depth == 0 && turnNum == 0)
-						scores.add(Integer.toString(minMax));
 
 					if (depth % 2 == 0 && hasBest) {
 						bestScore = Math.max(bestScore, minMax);
@@ -112,9 +104,6 @@ public class AI {
 				} else {
 					int minMax = minMaxScore(child, depth + 1, alpha, beta);
 
-					if (depth == 0 && turnNum == 0)
-						scores.add(Integer.toString(minMax));
-
 					if (depth % 2 == 0 && hasBest) {
 						bestScore = Math.max(bestScore, minMax);
 						if (oldBest < bestScore)
@@ -129,8 +118,6 @@ public class AI {
 						hasBest = true;
 					}
 				}
-			} else if (depth == 0 && turnNum == 0) {
-				scores.add(null);
 			}
 		}
 
@@ -155,12 +142,12 @@ public class AI {
 	public int findBestMove(Board board, int maxDepth) {
 
 		this.maxDepth = maxDepth;
+		numChecked =  0;
 
 		playerMove = board.playerMove;
-		scores.clear();
 		minMaxScore(board, 0, MIN, MAX);
 
-		// System.out.println(numChecked);
+		 System.out.println(numChecked);
 		/*
 		 * System.out.println(bestScore.score);
 		 * 
@@ -174,7 +161,7 @@ public class AI {
 		 */
 		// int[] hmh = hm.get(board.hashNum());
 		// for (int i = 0; i < hmh.length; i++) {
-		System.out.println(lastBestMove);
+		//System.out.println(lastBestMove);
 		// }
 
 		return lastBestMove;

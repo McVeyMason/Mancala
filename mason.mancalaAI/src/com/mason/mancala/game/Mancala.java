@@ -204,12 +204,12 @@ public class Mancala implements Runnable {
 			boolean move = board.playerMove;
 			while (move == board.playerMove && board.possibleMove()) {
 				if (board.playerMove) {
-					int bestMove  = ai.findBestMove(board, 10);
+					int bestMove  = ai.findBestMove(board, 6);
 					System.out.println(bestMove);
 					board.playBoard(bestMove);
 					window.render(board);
 				} else {
-					int bestMove  = ai.findBestMove(board, 10);
+					int bestMove  = ai.findBestMove(board, 6);
 					System.out.println(bestMove);
 					board.playBoard(bestMove);
 					window.render(board);
