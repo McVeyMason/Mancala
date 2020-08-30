@@ -1,5 +1,6 @@
-package com.mason.mancala.input;
+package com.mason.mancala.game.input;
 
+import java.awt.Point;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
@@ -11,6 +12,7 @@ import java.awt.event.MouseMotionListener;
 public class InputHandler implements KeyListener, MouseListener, FocusListener, MouseMotionListener {
 
 	public boolean[] key = new boolean[68836];
+	public Point[] mouseClick = new Point[3];
 	public InputHandler() {
 		// TODO Auto-generated constructor stub
 	}
@@ -42,8 +44,7 @@ public class InputHandler implements KeyListener, MouseListener, FocusListener, 
 
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
+		mouseClick[arg0.getButton()] = arg0.getLocationOnScreen();
 	}
 
 	@Override
