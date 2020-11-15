@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
 import javax.swing.JFrame;
+import javax.swing.WindowConstants;
 
 import com.mason.mancala.game.input.InputHandler;
 import com.mason.mancala.game.input.InputProcesser;
@@ -56,7 +57,7 @@ public class Display extends Canvas {
 		frame.setLocationRelativeTo(null);
 		this.setPreferredSize(new Dimension(WIDTH, TOTAL_HEIGHT));
 		frame.setResizable(false);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 
 		frame.pack();
@@ -90,12 +91,18 @@ public class Display extends Canvas {
 		bs.show();
 	}
 
-	private void drawMarbles(GameBoard board, Graphics g) {
+	private static void drawMarbles(GameBoard board, Graphics g) {
 
+		String move;
+		if (board.getPlayerMove())
+			move = "Your Move";
+		else
+			move = "Opponent's Move";
+		
 		g.drawString(board.text, 0, g.getFont().getSize());
-		g.drawString("Your Move:" + board.getPlayerMove(), WIDTH * 5 / 8, g.getFont().getSize());
+		g.drawString(move, WIDTH * 5 / 8, g.getFont().getSize());
 		if (board.finished)
-			g.drawString("winner:" + board.winner, WIDTH * 5 / 8, 2 * g.getFont().getSize());
+			g.drawString(board.winner, WIDTH * 5 / 8, 2 * g.getFont().getSize());
 		for (int i = 0; i < 6; i++) {
 			if (board.marbles[i] > 0)
 				g.drawString(Integer.toString(board.marbles[i]), (i + 1) * WIDTH / 8 + (WIDTH / 16),
@@ -116,7 +123,7 @@ public class Display extends Canvas {
 	 * @param pixel
 	 * @return
 	 */
-	private int graph(int pixel) {
+	private static int graph(int pixel) {
 
 		int y = (pixel - (pixel % WIDTH)) / WIDTH;
 		int x = pixel % WIDTH;

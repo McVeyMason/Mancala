@@ -113,36 +113,16 @@ public class GameBoard extends Board{
 
 	public void play(int pickUp) {
 		if (canPlay(pickUp)) {
-			if (getPlayerMove())
-				playPlayer(pickUp);
-			else
-				playOpponent(pickUp);
-			if (!possibleMoveOpponent()) {
-				for (int i = 0; i < 6; i++) {
-					marbles[6] += marbles[i];
-					marbles[i] = 0;
-				}
+			super.play(pickUp);
+			if (!possibleMoveOpponent() || !possibleMovePlayer()) {
 				finished = true;
 				setPlayerMove(false);
 				if (marbles[6] > marbles[13])
-					winner = "player";
+					winner = "You Win";
 				else if (marbles[6] == marbles[13])
-					winner = "tie";
+					winner = "It's a tie";
 				else
-					winner = "opponent";
-			} else if (!possibleMovePlayer()) {
-				for (int i = 0; i < 6; i++) {
-					marbles[13] += marbles[i + 7];
-					marbles[i + 7] = 0;
-				}
-				finished = true;
-				setPlayerMove(true);
-				if (marbles[6] > marbles[13])
-					winner = "player";
-				else if (marbles[6] == marbles[13])
-					winner = "tie";
-				else
-					winner = "opponent";
+					winner = "Opponent Wins";
 			}
 		}
 	}

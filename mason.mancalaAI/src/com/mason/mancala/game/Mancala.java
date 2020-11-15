@@ -82,9 +82,12 @@ public class Mancala implements Runnable {
 	public static boolean[] y_n = new boolean[2];
 
 	static final double FPS = 15.0;
+	
+	private AI ai;
 
 	public Mancala() {
 		window = new Display();
+		ai = new AI(10);
 	}
 
 	public static void main(String[] args) {
@@ -183,7 +186,6 @@ public class Mancala implements Runnable {
 		if (y_n[0] && !y_n[1]) {
 			boolean move = board.getPlayerMove();
 			while (move == board.getPlayerMove() && board.possibleMove()) {
-				AI ai = new AI(6);
 				int bestMove = ai.findBestMove(board);
 				System.out.println(bestMove);
 				board.play(bestMove);
