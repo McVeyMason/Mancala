@@ -38,18 +38,14 @@ public class AI {
 	}
 
 	private int minMaxTurn(Board board, int currentLayer, int alpha, int beta, boolean move, int turnNum) {
-		int bestMove = 0;
 		int bestScore = 0;
 		boolean hasBest = false;
-		int[] moves = new int[] {0,1,2,3,4,5};
 		
 		if (bestMoves.containsKey(board.hashCode())) {
-			int m = bestMoves.get(board.hashCode());
-			moves[m] = 0;
-			moves[0] = m;
+			alpha = bestMoves.get(board.hashCode());
 		}
 		
-		for (int i : moves) {
+		for (int i = 0; i < 6; i++) {
 
 			if (hasBest) {
 				if (currentLayer % 2 == 0) {
@@ -83,9 +79,6 @@ public class AI {
 						bestScore = minMax;
 						hasBest = true;
 					}
-					
-					if (bestScore == minMax)
-						bestMove = i;
 				} else {
 					int minMax = minMaxScore(child, currentLayer + 1, alpha, beta);
 
@@ -102,16 +95,14 @@ public class AI {
 						bestScore = minMax;
 						hasBest = true;
 					}
-					
-					if (bestScore == minMax)
-						bestMove = i;
 				}
 			} else if (currentLayer == 0 && turnNum == 0) {
 				scores.add(null);
 			}
 		}
 		if (hasBest && board.possibleMove()) {
-			bestMoves.put(board.hashCode(), bestMove);
+			if (currentLayer > 0 && currentLayer < maxDepth -1)
+				bestMoves.put(board.hashCode(), bestScore);
 			return bestScore;
 		}
 		else {
