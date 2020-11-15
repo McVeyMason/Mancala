@@ -16,7 +16,7 @@ public class AI {
 	 * Uses string format so null is no move;
 	 */
 	private ArrayList<String> scores;
-	private long numChecked = 0;
+	private long numChecked;
 	private HashMap<Integer, Integer> bestMoves;
 
 	public AI(int maxDepth) {
@@ -112,6 +112,8 @@ public class AI {
 	}
 
 	public int findBestMove(GameBoard board) {
+		
+		numChecked = 0;
 
 		String[] currentTree = new String[maxDepth];
 		for (int i = 0; i < currentTree.length; i++) {
