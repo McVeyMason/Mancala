@@ -67,7 +67,7 @@ public class Display extends Canvas {
 		process.tick(input.key);
 	}
 
-	void render(Board board) {
+	void render(GameBoard board) {
 
 		BufferStrategy bs = this.getBufferStrategy();
 		if (bs == null) {
@@ -90,7 +90,7 @@ public class Display extends Canvas {
 		bs.show();
 	}
 
-	private void drawMarbles(Board board, Graphics g) {
+	private void drawMarbles(GameBoard board, Graphics g) {
 
 		g.drawString(board.text, 0, g.getFont().getSize());
 		g.drawString("Your Move:" + board.getPlayerMove(), WIDTH * 5 / 8, g.getFont().getSize());

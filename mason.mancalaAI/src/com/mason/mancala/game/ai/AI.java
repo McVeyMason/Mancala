@@ -3,6 +3,7 @@ package com.mason.mancala.game.ai;
 import java.util.ArrayList;
 
 import com.mason.mancala.game.Board;
+import com.mason.mancala.game.GameBoard;
 
 public class AI {
 
@@ -95,7 +96,7 @@ public class AI {
 		}
 	}
 
-	public int findBestMove(Board board) {
+	public int findBestMove(GameBoard board) {
 
 		String[] currentTree = new String[maxDepth];
 		for (int i = 0; i < currentTree.length; i++) {

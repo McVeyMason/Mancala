@@ -1,138 +1,38 @@
 package com.mason.mancala.game;
 
-/**
- * A mancala board. The marbles in each pocket is tracked by
- * {@link Board#marbles}.
- * 
- * @author Mason
- *
- */
 public class Board {
-
+	
 	/**
 	 * The amount of marbles in each pocket of Board.
 	 * <p>
 	 * Index 0 is the player's leftmost pocket. Numbering continue in a
 	 * counter-clockwise motion and includes the player's store (index 6) and the
 	 * opponent's store (index 13). Numbers are changed through
-	 * {@link Board#playPlayer(int)} and {@link Board#playOpponent(int)}.
+	 * {@link GameBoard#playPlayer(int)} and {@link GameBoard#playOpponent(int)}.
 	 * </p>
 	 */
-	protected int[] marbles;
-
-	/**
-	 * Stored as 1 is the first pocket (index 0) and 12 in the last (index 12).
-	 */
-	protected int[] moves;
-
-	/**
-	 * The current move of the board.
-	 */
-	protected int currentMove;
-
-	/**
-	 * The maximum moves the player will make
-	 */
-	protected static final int MOSTMOVES = 70;
-
-	/**
-	 * The text above the board.
-	 */
-	protected String text = "";
-
+	protected int[] marbles = new int[14];
+	
 	/**
 	 * If it is the player's turn.
 	 */
 	private boolean playerMove = true;
-
-	/**
-	 * If the game is playing.
-	 */
-	protected boolean playing = false;
-
-	protected boolean prompt = true;
-
-	/**
-	 * If the game is finished
-	 */
-	protected boolean finished = false;
-
-	/**
-	 * player, opponent, or tie
-	 */
-	protected String winner = "";
-
-	/**
-	 * Default constructor. {@link Board.marbles} set to {@link Mancala#MARBLES}.
-	 * {@link Board#move} set to <code>true</code>. {@link Board#moves} created and
-	 * {@link Board#currentMove} set to 0.
-	 */
-	Board() {
-		marbles = new int[14];
-		System.arraycopy(Mancala.MARBLES, 0, marbles, 0, 14);
-		this.moves = new int[MOSTMOVES];
-		currentMove = 0;
+	
+	public Board() {
+		
 	}
-
-	/**
-	 * Constructor.
-	 * 
-	 * @param marbles Sets {@link Board#marbles}
-	 */
-	Board(int[] marbles) {
-		this.marbles = new int[marbles.length];
-		System.arraycopy(marbles, 0, this.marbles, 0, marbles.length);
-		this.moves = new int[MOSTMOVES];
-		currentMove = 0;
-	}
-
-	/**
-	 * @param marbles
-	 * @param move
-	 * @param moves
-	 */
-	Board(int[] marbles, int[] moves) {
-		this.marbles = new int[marbles.length];
-		System.arraycopy(marbles, 0, this.marbles, 0, marbles.length);
-		this.moves = moves;
-		currentMove = 0;
-	}
-
-	/**
-	 * @param marbles
-	 * @param move
-	 * @param moves
-	 * @param currentMove
-	 */
-	Board(int[] marbles, int[] moves, int currentMove) {
-		this.marbles = new int[marbles.length];
-		System.arraycopy(marbles, 0, this.marbles, 0, marbles.length);
-		this.moves = moves;
-		this.currentMove = currentMove;
-	}
-
-	/**
-	 * Deep copy Board
-	 * 
-	 * @param board the Board to be copied
-	 * @return a deep copy of the Board
-	 */
+	
 	public Board(Board board) {
-		this.currentMove = board.currentMove;
-		this.marbles = new int[board.marbles.length];
-		System.arraycopy(board.marbles, 0, this.marbles, 0, board.marbles.length);
-		this.setPlayerMove(board.getPlayerMove());
-		this.moves = new int[MOSTMOVES];
-		System.arraycopy(board.moves, 0, this.moves, 0, board.moves.length);
-
+		this.playerMove = board.playerMove;
+		System.arraycopy(board.marbles, 0, marbles, 0, 14);
 	}
-
+	
 	/**
 	 * Plays the game from <code>pickUp</code> and deposits marbles into
 	 * 
 	 * @param pickUp the pocket to play the game from
 	 */
-	private void playPlayer(int pickUp) {
+	protected void playPlayer(int pickUp) {
 
 		int current = marbles[pickUp];
 		marbles[pickUp] = 0;
@@ -154,13 +54,13 @@ public class Board {
 		}
 
 		if (currentPocket != 6)
-			setPlayerMove(false);
+			playerMove  = false;
 	}
 
 	/**
 	 * @param pickUp the starting pocket (0-6) on the opponents side.
 	 */
-	private void playOpponent(int pickUp) {
+	protected void playOpponent(int pickUp) {
 		pickUp += 7;
 
 		int current = marbles[pickUp];
@@ -185,9 +85,9 @@ public class Board {
 		}
 
 		if (currentPocket != 13)
-			setPlayerMove(true);
+			playerMove = true;
 	}
-
+	
 	public void play(int pickUp) {
 		if (canPlay(pickUp)) {
 			if (getPlayerMove())
@@ -199,85 +99,30 @@ public class Board {
 					marbles[6] += marbles[i];
 					marbles[i] = 0;
 				}
-				finished = true;
-				setPlayerMove(false);
-				if (marbles[6] > marbles[13])
-					winner = "player";
-				else if (marbles[6] == marbles[13])
-					winner = "tie";
-				else
-					winner = "opponent";
 			} else if (!possibleMovePlayer()) {
 				for (int i = 0; i < 6; i++) {
 					marbles[13] += marbles[i + 7];
 					marbles[i + 7] = 0;
 				}
-				finished = true;
-				setPlayerMove(true);
-				if (marbles[6] > marbles[13])
-					winner = "player";
-				else if (marbles[6] == marbles[13])
-					winner = "tie";
-				else
-					winner = "opponent";
 			}
 		}
 	}
-
-	/**
-	 * 
-	 */
-	public void printBoard() {
-		String out = new String();
-		out = marbles[6] + " : ";
-		for (int i = 0; i < currentMove; i++) {
-			out = out + Integer.toString(moves[i]);
-			if (i + 1 < currentMove)
-				out = out + ", ";
-		}
-		out = out + " : " + getPlayerMove() + " : ";
-		for (int i = 0; i < marbles.length; i++) {
-			out = out + marbles[i];
-			if (i + 1 < marbles.length)
-				out = out + ", ";
-		}
-
-		System.out.println(out);
-	}
-
-	/**
-	 * @return {@link Board.moves} in String form.
-	 */
-	public String getMovesString() {
-		String moveString = "";
-		for (int i = 0; i < this.currentMove; i++) {
-			moveString = moveString + moves[i];
-			if (i + 1 < this.currentMove)
-				moveString = moveString + ", ";
-		}
-		return moveString;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getMarblesString() {
-		String marbleString = "";
-		for (int i = 0; i < marbles.length; i++) {
-			marbleString = marbleString + marbles[i];
-			if (i + 1 < marbles.length)
-				marbleString = marbleString + ", ";
-		}
-		return marbleString;
-	}
 	
 	/**
-	 * @param board Board to be read.
-	 * @return An object of different aspects of board.
+	 * Returns the score difference
+	 * 
+	 * @param player From the players perspective?
+	 * @return
 	 */
-	public Object[] boardText() {
-		return new Object[] { getMovesString(), marbles[6], getMarblesString(),
-				Integer.toString(currentMove) };
+	public int scoreDiff(boolean player) {
+		if (player)
+			return marbles[6] - marbles[13];
+		else
+			return marbles[13] - marbles[6];
+	}
+	
+	public boolean possibleMove() {
+		return possibleMovePlayer() && possibleMoveOpponent();
 	}
 
 	/**
@@ -296,10 +141,7 @@ public class Board {
 			return false;
 	}
 
-	public boolean possibleMove() {
-		return possibleMovePlayer() && possibleMoveOpponent();
-	}
-
+	
 	boolean possibleMovePlayer() {
 		for (int i = 0; i < 6; i++)
 			if (marbles[i] > 0)
@@ -313,26 +155,12 @@ public class Board {
 				return true;
 		return false;
 	}
-
-	/**
-	 * Returns the score difference
-	 * 
-	 * @param player From the players perspective?
-	 * @return
-	 */
-	public int scoreDiff(boolean player) {
-		if (player)
-			return marbles[6] - marbles[13];
-		else
-			return marbles[13] - marbles[6];
-	}
-
+	
 	public boolean getPlayerMove() {
 		return playerMove;
 	}
-
+	
 	public void setPlayerMove(boolean playerMove) {
 		this.playerMove = playerMove;
 	}
-
 }

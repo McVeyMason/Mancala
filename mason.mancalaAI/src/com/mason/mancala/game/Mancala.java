@@ -129,7 +129,7 @@ public class Mancala implements Runnable {
 	@Override
 	public void run() {
 		marbles = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-		Board board = new Board(marbles);
+		GameBoard board = new GameBoard(marbles);
 		double coolDown = 0.5;
 		long downTime = 0;
 		long previousTime = System.nanoTime();
@@ -155,7 +155,7 @@ public class Mancala implements Runnable {
 		stop();
 	}
 
-	private boolean tick(Board board) {
+	private boolean tick(GameBoard board) {
 		window.process();
 		board.prompt = !board.playing;
 		if (board.prompt) {
@@ -165,7 +165,7 @@ public class Mancala implements Runnable {
 		}
 	}
 
-	private boolean move(Board board) {
+	private boolean move(GameBoard board) {
 		// if (board.playerMove) {
 		for (int i = 0; i < playSlots.length; i++) {
 			if (board.getPlayerMove()) {
@@ -201,14 +201,14 @@ public class Mancala implements Runnable {
 	}
 
 	/**
-	 * Creates the marbles to be used in the construction of {@link Board}.
+	 * Creates the marbles to be used in the construction of {@link GameBoard}.
 	 * 
 	 * @return An array of marbles
 	 * @see Mancala#marbles
 	 * @see Mancala#MARBLES
 	 * @see Mancala#MARBLES_HALF
 	 */
-	private static boolean setBoard(Board board) {
+	private static boolean setBoard(GameBoard board) {
 		if (board.text == "") {
 			board.text = "Your Move?(y/n)";
 			return false;
