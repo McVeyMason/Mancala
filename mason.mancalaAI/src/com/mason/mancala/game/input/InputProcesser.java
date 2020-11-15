@@ -11,7 +11,7 @@ public class InputProcesser {
 	}
 
 	public void process(boolean one, boolean two, boolean three, boolean four, boolean five, boolean six, boolean y,
-			boolean n) {
+	        boolean n) {
 		Mancala.playSlots = new boolean[] { one, two, three, four, five, six };
 		Mancala.y_n = new boolean[] { y, n };
 	}
@@ -25,7 +25,7 @@ public class InputProcesser {
 		boolean six = key[KeyEvent.VK_6] || key[KeyEvent.VK_NUMPAD6];
 		boolean y = key[KeyEvent.VK_Y];
 		boolean n = key[KeyEvent.VK_N];
-//		boolean jump = key[KeyEvent.VK_W];
+		// boolean jump = key[KeyEvent.VK_W];
 		process(one, two, three, four, five, six, y, n);
 	}
 

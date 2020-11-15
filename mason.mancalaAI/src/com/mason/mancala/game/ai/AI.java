@@ -26,7 +26,7 @@ public class AI {
 		if (currentLayer < maxDepth && board.possibleMove()) {
 			// if (currentLayer == 5)
 			// System.out.println(numChecked);
-			return minMaxTurn(board, currentLayer, alpha, beta, board.playerMove, 0);
+			return minMaxTurn(board, currentLayer, alpha, beta, board.getPlayerMove(), 0);
 		} else {
 			numChecked++;
 			return board.scoreDiff(playerMove);
@@ -54,7 +54,7 @@ public class AI {
 				Board child = new Board(board);
 				child.play(i);
 
-				if (move == child.playerMove) {
+				if (move == child.getPlayerMove()) {
 					int minMax = minMaxTurn(child, currentLayer, alpha, beta, move, turnNum + 1);
 
 					if (currentLayer == 0 && turnNum == 0)
@@ -101,7 +101,7 @@ public class AI {
 		for (int i = 0; i < currentTree.length; i++) {
 			currentTree[i] = null;
 		}
-		playerMove = board.playerMove;
+		playerMove = board.getPlayerMove();
 		scores.clear();
 		int bestScore = minMaxScore(board, 0, MIN, MAX);
 

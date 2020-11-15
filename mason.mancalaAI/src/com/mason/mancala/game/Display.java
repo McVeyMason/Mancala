@@ -24,7 +24,7 @@ public class Display extends Canvas {
 	 * 
 	 */
 	private static final long serialVersionUID = -5568929097739915801L;
-	private static final String TITLE = "Graph";
+	private static final String TITLE = "Mancala";
 	private BufferedImage img;
 	private int[] pixels;
 
@@ -93,18 +93,18 @@ public class Display extends Canvas {
 	private void drawMarbles(Board board, Graphics g) {
 
 		g.drawString(board.text, 0, g.getFont().getSize());
-		g.drawString("Your Move:" + board.playerMove, WIDTH * 5 / 8, g.getFont().getSize());
+		g.drawString("Your Move:" + board.getPlayerMove(), WIDTH * 5 / 8, g.getFont().getSize());
 		if (board.finished)
 			g.drawString("winner:" + board.winner, WIDTH * 5 / 8, 2 * g.getFont().getSize());
 		for (int i = 0; i < 6; i++) {
 			if (board.marbles[i] > 0)
 				g.drawString(Integer.toString(board.marbles[i]), (i + 1) * WIDTH / 8 + (WIDTH / 16),
-						HEIGHT * 3 / 4 + TEXT_HEIGHT);
+				        HEIGHT * 3 / 4 + TEXT_HEIGHT);
 		}
 		for (int i = 0; i < 6; i++) {
 			if (board.marbles[i + 7] > 0)
 				g.drawString(Integer.toString(board.marbles[i + 7]), (6 - i) * WIDTH / 8 + (WIDTH / 16),
-						HEIGHT / 4 + TEXT_HEIGHT);
+				        HEIGHT / 4 + TEXT_HEIGHT);
 		}
 		if (board.marbles[6] > 0)
 			g.drawString(Integer.toString(board.marbles[6]), WIDTH * 15 / 16, HEIGHT / 2 + TEXT_HEIGHT);
@@ -125,7 +125,7 @@ public class Display extends Canvas {
 				return Color.black.getRGB();
 		}
 		if (y >= HEIGHT / 2 - 5 + TEXT_HEIGHT && y <= HEIGHT / 2 + 5 + TEXT_HEIGHT && x >= WIDTH / 8
-				&& x <= WIDTH / 8 * 7)
+		        && x <= WIDTH / 8 * 7)
 			return Color.black.getRGB();
 		// System.out.println("white");
 		return Color.WHITE.getRGB();

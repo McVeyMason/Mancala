@@ -33,18 +33,18 @@ public class Mancala implements Runnable {
 
 	public static int[] marbles = new int[14];
 
-//	/**
-//	 * The first layer of possible moves on the <code>Board</code>.
-//	 * 
-//	 * @see Board
-//	 * @see Mancala#indexLayer1
-//	 */
-//	static List<Board> boardLayer1 = new ArrayList<Board>();
+	// /**
+	// * The first layer of possible moves on the <code>Board</code>.
+	// *
+	// * @see Board
+	// * @see Mancala#indexLayer1
+	// */
+	// static List<Board> boardLayer1 = new ArrayList<Board>();
 	/**
 	 * // * The second layer of possible moves on the <code>Board</code>. // * //
 	 * * @see Board // * @see Mancala#indexLayer2 //
 	 */
-//	static List<Board> boardLayer2 = new ArrayList<Board>();
+	// static List<Board> boardLayer2 = new ArrayList<Board>();
 
 	/**
 	 * The index of {@link Mancala#boardLayer1}.
@@ -73,7 +73,6 @@ public class Mancala implements Runnable {
 	static final int SHEET_NUMBER = 3;
 
 	private Thread thread;
-
 	private boolean running = false;
 
 	private Display window;
@@ -167,41 +166,37 @@ public class Mancala implements Runnable {
 	}
 
 	private boolean move(Board board) {
-		//if (board.playerMove) {
-			for (int i = 0; i < playSlots.length; i++) {
-				if (board.playerMove) {
-					if (playSlots[i] && board.marbles[i] > 0) {
-						board.play(i);
-						return true;
-					}
-				} else {
-					if (playSlots[i] && board.marbles[i + 7] > 0) {
-						board.play(i);
-						return true;
-					}
+		// if (board.playerMove) {
+		for (int i = 0; i < playSlots.length; i++) {
+			if (board.getPlayerMove()) {
+				if (playSlots[i] && board.marbles[i] > 0) {
+					board.play(i);
+					return true;
+				}
+			} else {
+				if (playSlots[i] && board.marbles[i + 7] > 0) {
+					board.play(i);
+					return true;
 				}
 			}
-			if (y_n[0] && !y_n[1]) {
-				boolean move = board.playerMove;
-				while (move == board.playerMove) {
-					AI ai = new AI(6);
-					int bestMove  = ai.findBestMove(board);
-					System.out.println(bestMove);
-					board.play(bestMove);
-					window.render(board);
-				}
-				System.out.println();
-				return true;
-			}
-		/*} else {
-			boolean move = board.playerMove;
-			while (move == board.playerMove) {
-				AI ai = new AI(4);
-				board.play(ai.findBestMove(board));
+		}
+		if (y_n[0] && !y_n[1]) {
+			boolean move = board.getPlayerMove();
+			while (move == board.getPlayerMove() && board.possibleMove()) {
+				AI ai = new AI(6);
+				int bestMove = ai.findBestMove(board);
+				System.out.println(bestMove);
+				board.play(bestMove);
 				window.render(board);
 			}
+			System.out.println();
 			return true;
-		}*/
+		}
+		/*
+		 * } else { boolean move = board.playerMove; while (move == board.playerMove) {
+		 * AI ai = new AI(4); board.play(ai.findBestMove(board)); window.render(board);
+		 * } return true; }
+		 */
 		return false;
 	}
 
@@ -219,11 +214,11 @@ public class Mancala implements Runnable {
 			return false;
 		}
 		if (y_n[0] && !y_n[1] && board.text == "Your Move?(y/n)") {
-			board.playerMove = true;
+			board.setPlayerMove(true);
 			board.text = "Default Board?(y/n)";
 			return true;
 		} else if (!y_n[0] && y_n[1] && board.text == "Your Move?(y/n)") {
-			board.playerMove = false;
+			board.setPlayerMove(false);
 			board.text = "Default Board?(y/n)";
 			return true;
 		}
