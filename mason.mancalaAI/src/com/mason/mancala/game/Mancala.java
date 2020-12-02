@@ -20,7 +20,7 @@ public class Mancala implements Runnable {
 	 * {@link Mancala#MARBLES}.
 	 * 
 	 */
-	public static final int[] MARBLES_HALF = new int[] { 4, 4, 4, 4, 4, 4, 0 };
+	public static final byte[] MARBLES_HALF = new byte[] { 4, 4, 4, 4, 4, 4, 0 };
 
 	/**
 	 * The default array of marbles in each pocket. To be used if the user chooses
@@ -29,9 +29,9 @@ public class Mancala implements Runnable {
 	 * @see Mancala#setBoard()
 	 * @see Mancala#MARBLES_HALF
 	 */
-	public static final int[] MARBLES = new int[14];
+	public static final byte[] MARBLES = new byte[14];
 
-	public static int[] marbles = new int[14];
+	public static byte[] marbles = new byte[14];
 
 	// /**
 	// * The first layer of possible moves on the <code>Board</code>.
@@ -87,7 +87,7 @@ public class Mancala implements Runnable {
 
 	public Mancala() {
 		window = new Display();
-		ai = new AI(10);
+		ai = new AI(14);
 	}
 
 	public static void main(String[] args) {
@@ -131,7 +131,7 @@ public class Mancala implements Runnable {
 
 	@Override
 	public void run() {
-		marbles = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+		marbles = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 		GameBoard board = new GameBoard(marbles);
 		double coolDown = 0.5;
 		long downTime = 0;
@@ -187,10 +187,12 @@ public class Mancala implements Runnable {
 			boolean move = board.getPlayerMove();
 			while (move == board.getPlayerMove() && board.possibleMove()) {
 				int bestMove = ai.findBestMove(board);
-				System.out.println(bestMove);
+				System.out.println("Pocket played: " + (1 + bestMove));
 				board.play(bestMove);
 				window.render(board);
 			}
+			//System.out.println("Board String: " + board);
+			//System.out.println("Board Hash: " + board.toString().hashCode());
 			System.out.println();
 			return true;
 		}

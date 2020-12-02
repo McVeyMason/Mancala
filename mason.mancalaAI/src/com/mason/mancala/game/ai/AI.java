@@ -1,6 +1,5 @@
 package com.mason.mancala.game.ai;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.mason.mancala.game.Board;
@@ -9,134 +8,120 @@ import com.mason.mancala.game.GameBoard;
 public class AI {
 
 	private int maxDepth;
-	private boolean playerMove;
 	private static final int MIN = -48;
 	private static final int MAX = -MIN;
-	/**
-	 * Uses string format so null is no move;
-	 */
-	private ArrayList<String> scores;
 	private long numChecked;
-	private HashMap<Integer, Integer> bestMoves;
+	private HashMap<Integer, Byte> bestMoves;
 
 	public AI(int maxDepth) {
 		this.maxDepth = maxDepth;
-		scores = new ArrayList<String>();
-		bestMoves = new HashMap<Integer, Integer>();
+		bestMoves = new HashMap<Integer, Byte>();
 	}
 
-	private int minMaxScore(Board board, int currentLayer, int alpha, int beta) {
+	private int minMaxScore(Board board, int currentLayer, int alpha, int beta, boolean recordMoves) {
 
 		if (currentLayer < maxDepth && board.possibleMove()) {
 			// if (currentLayer == 5)
 			// System.out.println(numChecked);
-			return minMaxTurn(board, currentLayer, alpha, beta, board.getPlayerMove(), 0);
+			return minMaxTurn(board, currentLayer, alpha, beta, board.getPlayerMove(), 0, recordMoves);
 		} else {
 			numChecked++;
-			return board.scoreDiff(playerMove);
+			return board.scoreDiff();
 		}
 	}
 
-	private int minMaxTurn(Board board, int currentLayer, int alpha, int beta, boolean move, int turnNum) {
+	private int minMaxTurn(Board board, int currentLayer, int alpha, int beta, boolean move, int turnNum,
+	        boolean recordMoves) {
 		int bestScore = 0;
 		boolean hasBest = false;
-		
-		if (bestMoves.containsKey(board.hashCode())) {
-			alpha = bestMoves.get(board.hashCode());
+
+		int bestMove = 0;
+
+		int[] moves = new int[] { 0, 1, 2, 3, 4, 5 };
+
+		if (bestMoves.containsKey(board.toString().hashCode())) {
+			int bestHash = 0;
+			// System.out.println("Hash " + board.toString().hashCode() + " used!");
+			bestHash = bestMoves.get(board.toString().hashCode());
+			moves[bestHash] = 0;
+			moves[0] = bestHash;
 		}
-		
-		for (int i = 0; i < 6; i++) {
 
-			if (hasBest) {
-				if (currentLayer % 2 == 0) {
-					alpha = Math.max(alpha, bestScore);
-					if (beta <= alpha)
-						break;
-				} else {
-					beta = Math.min(beta, bestScore);
-					if (beta <= alpha)
-						break;
-				}
-			}
+		if (beta > alpha) {
+			for (int i : moves) {
 
-			if (board.canPlay(i)) {
-				Board child = new Board(board);
-				child.play(i);
-
-				if (move == child.getPlayerMove()) {
-					int minMax = minMaxTurn(child, currentLayer, alpha, beta, move, turnNum + 1);
-
-					if (currentLayer == 0 && turnNum == 0)
-						scores.add(Integer.toString(minMax));
-
-					if (currentLayer % 2 == 0 && hasBest) {
-						bestScore = Math.max(bestScore, minMax);
-					}
-					else if (currentLayer % 2 == 1 && hasBest) {
-						bestScore = Math.min(bestScore, minMax);
-					}
-					else {
-						bestScore = minMax;
-						hasBest = true;
-					}
-				} else {
-					int minMax = minMaxScore(child, currentLayer + 1, alpha, beta);
-
-					if (currentLayer == 0 && turnNum == 0)
-						scores.add(Integer.toString(minMax));
-
-					if (currentLayer % 2 == 0 && hasBest) {
-						bestScore = Math.max(bestScore, minMax);
-					}
-					else if (currentLayer % 2 == 1 && hasBest) {
-						bestScore = Math.min(bestScore, minMax);
-					}
-					else {
-						bestScore = minMax;
-						hasBest = true;
+				if (hasBest) {
+					if (currentLayer % 2 == 0) {
+						alpha = Math.max(alpha, bestScore);
+						if (beta <= alpha)
+							break;
+					} else {
+						beta = Math.min(beta, bestScore);
+						if (beta <= alpha)
+							break;
 					}
 				}
-			} else if (currentLayer == 0 && turnNum == 0) {
-				scores.add(null);
+				int previousBest = bestScore;
+
+				if (board.canPlay(i)) {
+					Board child = new Board(board);
+					child.play(i);
+
+					if (move == child.getPlayerMove()) {
+						int minMax = minMaxTurn(child, currentLayer, alpha, beta, move, turnNum + 1, false);
+
+						if (currentLayer % 2 == 0 && hasBest) {
+							bestScore = Math.max(bestScore, minMax);
+						} else if (currentLayer % 2 == 1 && hasBest) {
+							bestScore = Math.min(bestScore, minMax);
+						} else {
+							bestScore = minMax;
+							hasBest = true;
+						}
+					} else {
+						int minMax = minMaxScore(child, currentLayer + 1, alpha, beta, false);
+
+						if (currentLayer % 2 == 0 && hasBest) {
+							bestScore = Math.max(bestScore, minMax);
+						} else if (currentLayer % 2 == 1 && hasBest) {
+							bestScore = Math.min(bestScore, minMax);
+						} else {
+							bestScore = minMax;
+							hasBest = true;
+						}
+					}
+
+					if (previousBest != bestScore)
+						bestMove = i;
+
+				}
 			}
 		}
+
 		if (hasBest && board.possibleMove()) {
-			if (currentLayer > 0 && currentLayer < maxDepth -1)
-				bestMoves.put(board.hashCode(), bestScore);
+			if (currentLayer < maxDepth - 1 && (!bestMoves.containsKey(board.toString().hashCode())
+			        || bestMoves.get(board.toString().hashCode()) != bestScore))
+				bestMoves.put(board.toString().hashCode(), (byte) bestMove);
 			return bestScore;
-		}
-		else {
+		} else {
 			numChecked++;
-			return board.scoreDiff(playerMove);
+			return board.scoreDiff();
 		}
 	}
 
 	public int findBestMove(GameBoard board) {
-		
+
 		numChecked = 0;
 
-		String[] currentTree = new String[maxDepth];
-		for (int i = 0; i < currentTree.length; i++) {
-			currentTree[i] = null;
-		}
-		playerMove = board.getPlayerMove();
-		scores.clear();
-		int bestScore = minMaxScore(board, 0, MIN, MAX);
-
-		System.out.println(numChecked);
-		/*
-		 * System.out.println(bestScore.score);
-		 * 
-		 * for (int i = 0; i < scores.size(); i++) { System.out.print(scores.get(i) +
-		 * ","); } System.out.println();
-		 * 
-		 * System.out.println("Checked: " + numChecked);
-		 */
-		for (int i = 0; i < 6; i++) {
-			if (scores.get(i) != null && Integer.parseInt(scores.get(i)) == bestScore)
-				return i;
+		if (board.getPlayerMove()) {
+			minMaxScore(board, 0, MIN, MAX, true);
+		} else {
+			minMaxScore(board, 1, MIN, MAX, true);
 		}
 
-		return -1;
+		//System.out.println("Checked: " + numChecked);
+		System.out.println("num Hashes: " + bestMoves.size());
+
+		return bestMoves.get(board.toString().hashCode());
 	}
 }

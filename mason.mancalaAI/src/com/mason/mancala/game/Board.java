@@ -1,7 +1,7 @@
 package com.mason.mancala.game;
 
 public class Board {
-	
+
 	/**
 	 * The amount of marbles in each pocket of Board.
 	 * <p>
@@ -11,22 +11,22 @@ public class Board {
 	 * {@link GameBoard#playPlayer(int)} and {@link GameBoard#playOpponent(int)}.
 	 * </p>
 	 */
-	protected int[] marbles = new int[14];
-	
+	protected byte[] marbles = new byte[14];
+
 	/**
 	 * If it is the player's turn.
 	 */
 	private boolean playerMove = true;
-	
+
 	public Board() {
-		
+
 	}
-	
+
 	public Board(Board board) {
 		this.playerMove = board.playerMove;
 		System.arraycopy(board.marbles, 0, marbles, 0, 14);
 	}
-	
+
 	/**
 	 * Plays the game from <code>pickUp</code> and deposits marbles into
 	 * 
@@ -54,7 +54,7 @@ public class Board {
 		}
 
 		if (currentPocket != 6)
-			playerMove  = false;
+			playerMove = false;
 	}
 
 	/**
@@ -87,7 +87,7 @@ public class Board {
 		if (currentPocket != 13)
 			playerMove = true;
 	}
-	
+
 	public void play(int pickUp) {
 		if (canPlay(pickUp)) {
 			if (getPlayerMove())
@@ -107,20 +107,16 @@ public class Board {
 			}
 		}
 	}
-	
+
 	/**
 	 * Returns the score difference
 	 * 
-	 * @param player From the players perspective?
 	 * @return
 	 */
-	public int scoreDiff(boolean player) {
-		if (player)
-			return marbles[6] - marbles[13];
-		else
-			return marbles[13] - marbles[6];
+	public int scoreDiff() {
+		return marbles[6] - marbles[13];
 	}
-	
+
 	public boolean possibleMove() {
 		return possibleMovePlayer() && possibleMoveOpponent();
 	}
@@ -141,7 +137,6 @@ public class Board {
 			return false;
 	}
 
-	
 	boolean possibleMovePlayer() {
 		for (int i = 0; i < 6; i++)
 			if (marbles[i] > 0)
@@ -155,12 +150,27 @@ public class Board {
 				return true;
 		return false;
 	}
-	
+
 	public boolean getPlayerMove() {
 		return playerMove;
 	}
-	
+
 	public void setPlayerMove(boolean playerMove) {
 		this.playerMove = playerMove;
+	}
+
+	public String toString() {
+		String str = "";
+		if (playerMove) {
+			str += 1;
+		} else {
+			str += 0;
+		}
+
+		for (byte b : marbles) {
+			str += b;
+		}
+
+		return str;
 	}
 }

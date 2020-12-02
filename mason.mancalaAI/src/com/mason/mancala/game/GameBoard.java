@@ -52,7 +52,7 @@ public class GameBoard extends Board{
 	 * {@link GameBoard#currentMove} set to 0.
 	 */
 	GameBoard() {
-		marbles = new int[14];
+		marbles = new byte[14];
 		System.arraycopy(Mancala.MARBLES, 0, marbles, 0, 14);
 		this.moves = new int[MOSTMOVES];
 		currentMove = 0;
@@ -63,8 +63,8 @@ public class GameBoard extends Board{
 	 * 
 	 * @param marbles Sets {@link GameBoard#marbles}
 	 */
-	GameBoard(int[] marbles) {
-		this.marbles = new int[marbles.length];
+	GameBoard(byte[] marbles) {
+		this.marbles = new byte[marbles.length];
 		System.arraycopy(marbles, 0, this.marbles, 0, marbles.length);
 		this.moves = new int[MOSTMOVES];
 		currentMove = 0;
@@ -76,7 +76,7 @@ public class GameBoard extends Board{
 	 * @param moves
 	 */
 	GameBoard(int[] marbles, int[] moves) {
-		this.marbles = new int[marbles.length];
+		this.marbles = new byte[marbles.length];
 		System.arraycopy(marbles, 0, this.marbles, 0, marbles.length);
 		this.moves = moves;
 		currentMove = 0;
@@ -88,8 +88,8 @@ public class GameBoard extends Board{
 	 * @param moves
 	 * @param currentMove
 	 */
-	GameBoard(int[] marbles, int[] moves, int currentMove) {
-		this.marbles = new int[marbles.length];
+	GameBoard(byte[] marbles, int[] moves, int currentMove) {
+		this.marbles = new byte[marbles.length];
 		System.arraycopy(marbles, 0, this.marbles, 0, marbles.length);
 		this.moves = moves;
 		this.currentMove = currentMove;
@@ -103,7 +103,7 @@ public class GameBoard extends Board{
 	 */
 	public GameBoard(GameBoard board) {
 		this.currentMove = board.currentMove;
-		this.marbles = new int[board.marbles.length];
+		this.marbles = new byte[board.marbles.length];
 		System.arraycopy(board.marbles, 0, this.marbles, 0, board.marbles.length);
 		this.setPlayerMove(board.getPlayerMove());
 		this.moves = new int[MOSTMOVES];
