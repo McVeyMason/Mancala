@@ -8,30 +8,31 @@ import com.mason.mancala.game.GameBoard;
 public class AI {
 
 	private int maxDepth;
+	private final int MAX_DEPTH;
 	private static final int MIN = -48;
 	private static final int MAX = -MIN;
 	private long numChecked;
+	private long hashesUsed;
 	private HashMap<Integer, Byte> bestMoves;
 
 	public AI(int maxDepth) {
-		this.maxDepth = maxDepth;
+		this.MAX_DEPTH = maxDepth;
 		bestMoves = new HashMap<Integer, Byte>();
 	}
 
-	private int minMaxScore(Board board, int currentLayer, int alpha, int beta, boolean recordMoves) {
+	private int minMaxScore(Board board, int currentLayer, int alpha, int beta) {
 
 		if (currentLayer < maxDepth && board.possibleMove()) {
 			// if (currentLayer == 5)
 			// System.out.println(numChecked);
-			return minMaxTurn(board, currentLayer, alpha, beta, board.getPlayerMove(), 0, recordMoves);
+			return minMaxTurn(board, currentLayer, alpha, beta, board.getPlayerMove(), 0);
 		} else {
 			numChecked++;
 			return board.scoreDiff();
 		}
 	}
 
-	private int minMaxTurn(Board board, int currentLayer, int alpha, int beta, boolean move, int turnNum,
-	        boolean recordMoves) {
+	private int minMaxTurn(Board board, int currentLayer, int alpha, int beta, boolean move, int turnNum) {
 		int bestScore = 0;
 		boolean hasBest = false;
 
@@ -40,6 +41,7 @@ public class AI {
 		int[] moves = new int[] { 0, 1, 2, 3, 4, 5 };
 
 		if (bestMoves.containsKey(board.toString().hashCode())) {
+			hashesUsed++;
 			int bestHash = 0;
 			// System.out.println("Hash " + board.toString().hashCode() + " used!");
 			bestHash = bestMoves.get(board.toString().hashCode());
@@ -68,7 +70,7 @@ public class AI {
 					child.play(i);
 
 					if (move == child.getPlayerMove()) {
-						int minMax = minMaxTurn(child, currentLayer, alpha, beta, move, turnNum + 1, false);
+						int minMax = minMaxTurn(child, currentLayer, alpha, beta, move, turnNum + 1);
 
 						if (currentLayer % 2 == 0 && hasBest) {
 							bestScore = Math.max(bestScore, minMax);
@@ -79,7 +81,7 @@ public class AI {
 							hasBest = true;
 						}
 					} else {
-						int minMax = minMaxScore(child, currentLayer + 1, alpha, beta, false);
+						int minMax = minMaxScore(child, currentLayer + 1, alpha, beta);
 
 						if (currentLayer % 2 == 0 && hasBest) {
 							bestScore = Math.max(bestScore, minMax);
@@ -99,7 +101,7 @@ public class AI {
 		}
 
 		if (hasBest && board.possibleMove()) {
-			if (currentLayer < maxDepth - 1 && (!bestMoves.containsKey(board.toString().hashCode())
+			if (currentLayer < maxDepth  && (!bestMoves.containsKey(board.toString().hashCode())
 			        || bestMoves.get(board.toString().hashCode()) != bestScore))
 				bestMoves.put(board.toString().hashCode(), (byte) bestMove);
 			return bestScore;
@@ -112,15 +114,18 @@ public class AI {
 	public int findBestMove(GameBoard board) {
 
 		numChecked = 0;
+		hashesUsed = 0;
 
 		if (board.getPlayerMove()) {
-			minMaxScore(board, 0, MIN, MAX, true);
+			maxDepth = MAX_DEPTH;
+			minMaxScore(board, 0, MIN, MAX);
 		} else {
-			minMaxScore(board, 1, MIN, MAX, true);
+			maxDepth = MAX_DEPTH + 1;
+			minMaxScore(board, 1, MIN, MAX);
 		}
 
-		//System.out.println("Checked: " + numChecked);
-		System.out.println("num Hashes: " + bestMoves.size());
+		System.out.println("Checked: " + numChecked);
+		System.out.println("num Hashes: " + bestMoves.size() + "\nnum used: " + hashesUsed);
 
 		return bestMoves.get(board.toString().hashCode());
 	}

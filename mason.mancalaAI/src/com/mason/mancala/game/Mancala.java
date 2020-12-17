@@ -76,6 +76,7 @@ public class Mancala implements Runnable {
 	private boolean running = false;
 
 	private Display window;
+	GameBoard board;
 
 	public static boolean[] playSlots = new boolean[6];
 
@@ -86,8 +87,8 @@ public class Mancala implements Runnable {
 	private AI ai;
 
 	public Mancala() {
-		window = new Display();
-		ai = new AI(14);
+		window = new Display(board);
+		ai = new AI(10);
 	}
 
 	public static void main(String[] args) {
@@ -132,8 +133,11 @@ public class Mancala implements Runnable {
 	@Override
 	public void run() {
 		marbles = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-		GameBoard board = new GameBoard(marbles);
-		double coolDown = 0.5;
+		board = new GameBoard(marbles);
+		window.setBoard(board);
+		window.start();
+		
+		double coolDown = 0.25;
 		long downTime = 0;
 		long previousTime = System.nanoTime();
 		long currentTime = System.nanoTime();
@@ -151,9 +155,8 @@ public class Mancala implements Runnable {
 					}
 				currentTime = System.nanoTime();
 				passedTime = currentTime - previousTime;
-				passedSeconds = passedTime / 1000000000.0;
+				passedSeconds = passedTime / 1000000000.0; 
 			}
-			window.render(board);
 		}
 		stop();
 	}
@@ -189,7 +192,6 @@ public class Mancala implements Runnable {
 				int bestMove = ai.findBestMove(board);
 				System.out.println("Pocket played: " + (1 + bestMove));
 				board.play(bestMove);
-				window.render(board);
 			}
 			//System.out.println("Board String: " + board);
 			//System.out.println("Board Hash: " + board.toString().hashCode());

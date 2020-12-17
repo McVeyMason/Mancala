@@ -15,12 +15,13 @@ import javax.swing.WindowConstants;
 import com.mason.mancala.game.input.InputHandler;
 import com.mason.mancala.game.input.InputProcesser;
 
-public class Display extends Canvas {
+public class Display extends Canvas implements Runnable {
 
 	private static final int WIDTH = 800;
 	private static final int TEXT_HEIGHT = 50;
 	private static final int HEIGHT = 200;
 	private static final int TOTAL_HEIGHT = TEXT_HEIGHT + HEIGHT;
+	
 	/**
 	 * 
 	 */
@@ -34,12 +35,19 @@ public class Display extends Canvas {
 	private static InputHandler input;
 
 	private InputProcesser process;
+	
+	private Thread thread;
+	private boolean running = false;
+	
+	private GameBoard board;
 
 	/**
 	 * 
 	 */
-	public Display() {
-
+	public Display(GameBoard board) {
+		
+		this.board = board;
+		
 		this.img = new BufferedImage(WIDTH, TOTAL_HEIGHT, BufferedImage.TYPE_INT_RGB);
 		this.pixels = ((DataBufferInt) this.img.getRaster().getDataBuffer()).getData();
 
@@ -68,7 +76,7 @@ public class Display extends Canvas {
 		process.tick(input.key);
 	}
 
-	void render(GameBoard board) {
+	void render() {
 
 		BufferStrategy bs = this.getBufferStrategy();
 		if (bs == null) {
@@ -85,13 +93,13 @@ public class Display extends Canvas {
 		}
 		g.drawImage(this.img, 0, 0, WIDTH, TOTAL_HEIGHT, null);
 
-		drawMarbles(board, g);
+		drawMarbles(g);
 
 		g.dispose();
 		bs.show();
 	}
 
-	private static void drawMarbles(GameBoard board, Graphics g) {
+	private void drawMarbles(Graphics g) {
 
 		String move;
 		if (board.getPlayerMove())
@@ -123,7 +131,7 @@ public class Display extends Canvas {
 	 * @param pixel
 	 * @return
 	 */
-	private static int graph(int pixel) {
+	private int graph(int pixel) {
 
 		int y = (pixel - (pixel % WIDTH)) / WIDTH;
 		int x = pixel % WIDTH;
@@ -136,5 +144,48 @@ public class Display extends Canvas {
 			return Color.black.getRGB();
 		// System.out.println("white");
 		return Color.WHITE.getRGB();
+	}
+
+	public void start() {
+		if (running)
+			return;
+		running = true;
+		thread = new Thread(this);
+		thread.start();
+	}
+
+	public void stop() {
+		if (!running)
+			return;
+		running = false;
+		try {
+			thread.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
+	}
+	
+	@Override
+	public void run() {
+		long previousTime = System.nanoTime();
+		long currentTime = System.nanoTime();
+		double frameTime = 1 / 10;
+		long passedTime = currentTime - previousTime;
+		double passedSeconds = passedTime / 1000000000.0;
+		while (running) {
+			currentTime = System.nanoTime();
+			passedTime = currentTime - previousTime;
+			passedSeconds = passedTime / 1000000000.0; 
+			if (passedSeconds > frameTime) {
+				render();
+				currentTime = System.nanoTime();
+				previousTime = currentTime;
+			}
+		}
+	}
+	
+	public void setBoard(GameBoard board) {
+		this.board = board;
 	}
 }
